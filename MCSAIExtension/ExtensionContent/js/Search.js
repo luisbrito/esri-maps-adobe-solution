@@ -121,11 +121,26 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Too
 
 		requestManager.OnCompleted = function () {
 			SearchTool.serviceList.clearSelection();
+			var ztl = dom.byId( 'zoomToLayers' );
+			if ( ztl.checked )
+				SearchTool.zoomToExtent( requestManager.extent );
 		};
 
 		requestManager.run();
 
 	};
 
+	SearchTool.zoomToExtent = function ( extent ) {
+		var ext = extent.expand( 1.2 );
+		cp = ext.getCenter();
+		var dw = map.extent.getWidth() / ext.getWidth();
+		dw = dw >= 1 ? dw : ( 1 / dw );
+		var dh = map.extent.getHeight() / ext.getHeight();
+		dh = dh >= 1 ? dh : ( 1 / dh );
+		if ( dw > 1.2 || dh > 1.2 )
+			map.setExtent( ext, true );
 
+		map.centerAt( cp );
+
+	}
 } );

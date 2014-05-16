@@ -218,7 +218,7 @@ define([
     		"layoutOptions": {}
     	};
     	
-    	dom.byId('downloadStatus').innerHTML = 'Downloading map...';
+    	dom.byId('downloadStatus').innerHTML = 'Downloading the map...';
 
     	// Define layer in service always 0. Should be discussed 
     	webMap.mapOptions.extent = map.extent.toJson();
@@ -258,6 +258,7 @@ define([
     	pdfRequest.then(
 			function ( response ) {
 				// success request
+				dom.byId( 'downloadStatus' ).innerHTML = '';
 				console.log( response );
 				window.open( response.results[0].value.url );
 				//downloadPdf( response.results[0].value.url, function(){
