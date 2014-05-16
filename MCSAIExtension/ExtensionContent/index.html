@@ -1,0 +1,112 @@
+<!doctype html>
+
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=9" />
+	<link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css" />
+	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css" />
+	<link rel="stylesheet" type="text/css" href="./css/aii.css" />
+	<script>
+		var dojoConfig = {
+			async : true,
+			//baseUrl: "/js/",
+			tlmSiblingOfDojo : false,
+			isDebug : 0,
+			packages : [{
+				name : "js",
+				location : "/../js"
+			}]
+			};
+	</script>
+	<script src="./lib/CSInterface-4.0.0.js"></script>
+	<script src="./js/ext.js"></script>
+	<script type="text/javascript" src="http://js.arcgis.com/3.9/"></script>
+	<script type="text/javascript">
+		require( ["dojo/parser", "js/aiiController", "dijit/layout/BorderContainer", "dijit/layout/StackContainer", "dijit/layout/ContentPane"], function ( parser, aiiController) {
+			// Explicitly parse the page first
+			parser.parse();
+			// now configure the dijits and tasks
+			aiiController.startup();
+			esri.config.defaults.io.proxyUrl = "proxy/proxy.ashx";
+		} );
+	</script>
+
+	<title>MCSExtension</title>
+</head>
+
+<body class="claro" onload="onLoaded()">
+	<div id="content" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false, liveSplitters:false" style="width:100%;height:100%;">
+		<div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'top'" title="" >
+			<div class="searchPane">
+				<span class="searchCtrl" > <!-- IE7: workaround for inherited margin bug: http://positioniseverything.net/explorer/inherited_margin.html -->
+					<input type="text" class="text" id="searchText" tabindex="1"/>
+				</span>
+				<input type="submit" title="Start searching" name="submit" value="Search" class="search-button" disabled='disabled' id="findResults" tabindex="2"/>
+			</div>
+			<div class="logo">
+				<div id="links" class="headerLinks">
+					<a href="#" class="userGuide" id="userGuideLink"  >User Guide</a>
+					<span tabindex="50" id="downLoadBtn" class="buttonBlue" style="width:150px;">
+					</span>
+				</div>
+				<img id="logoImg" src="./images/esri-logo.png" alt=""/>
+			</div>
+			<div class="headerShadow"></div>
+		</div>
+		<div id="utilityPanel" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'leading'" title="UtilityPanel">
+			<div id="panelOpener" >
+				<div id="serviceList" class="unselected serviceList-tab" style="text-align:center;" tabindex="20" >
+				</div>
+				<div id="layerList" class="unselected layerList-tab" style="text-align:center;" tabindex="21" >
+				</div>
+
+			</div>
+			<div id="serviceListContent" class="panel" style="display:none;">
+				<h1 id="h_layers">Feature Services
+				</h1>
+				<div id="closeServices_button" class="close-button"></div>
+				
+				<div id="servicesStack" data-dojo-type="dijit/layout/StackContainer" style="display: block; height:80%; width: 100%; overflow: auto;">
+					<div id="services-content" >
+					</div>
+				</div>
+				<div id="bottomSection" style="height:30px;">
+					<input type="checkbox" id="zoomToLayers" checked="checked">
+					<label for="zoomToLayers" style="font-family: 'Arial';font-size: 12px; ">Zoom to layers</label>
+					<span tabindex="40" id="runServiceBtn" class="buttonGrey" style="width:150px;"></span>
+				</div>
+			</div>
+			<div id="layerListContent" class="panel" style="display:none;">
+				<h1 id="h1">Layers on the Map
+				</h1>
+				<div id="closeLayers_button" class="close-button"></div>
+
+				<div id="layersStack" data-dojo-type="dijit/layout/StackContainer" style="display: block; height: 90%; width: 100%; overflow: auto;">
+					<div id="layers-content" style="height:90%;">
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="mapDiv" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'" >
+			<div id="map" data-dojo-type="dijit.layout.ContentPane" >
+			</div>
+		</div>
+		<div id="statusPane" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'bottom'">
+			<div id="spContent1" >
+				<span id="searchStatus" class="statusbar" ></span>
+			</div>
+			<div id="spContent2" >
+				<div id="mapStatus" style="float:left;width:300px;height:30px;position:relative;">
+					<span id="downloadStatus" class="statusbar1" ></span>
+					
+				</div>
+				<div style="">
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
+ 
