@@ -1,0 +1,207 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./ext.js"></script>
+<script src="./lib/CSInterface-4.0.0.js"></script>
+<script src="http://js.arcgis.com/3.9compact/"></script>
+<script>
+	var mYInst = null, id = "", tempPath = "";
+	require([
+	         "esri/arcgis/Portal",
+	         "esri/IdentityManager",
+	         "dojo/ready",
+	         "dojo/dom",
+	         "dojo/on"
+	], function(esriPortal, idManager, ready, dom, on) {
+		ready(function() {
+			mYInst =  new CSInterface();
+			on(dom.byId('sign_in'), 'click', logIn);
+			on(dom.byId('abort_queue'), 'click', abortReq);
+			dom.byId('sign_in').disabled = false;
+		});
+		
+		function logIn() {
+			id = generateUUID();
+			tempPath = mYInst.getSystemPath(SystemPath.USER_DATA);
+			tempPath += "/ArcGISillustrator.uid";
+			var res = window.cep.fs.writeFile(tempPath, id);
+			console.log(res);
+			var xhr = new XMLHttpRequest();
+			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			addr += id;
+			addr += "&action=add";
+			xhr.open("GET", addr, true);
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4)
+				{
+					if (xhr.status == 200)
+					{
+						startDialog();
+					}
+					else
+						abortReq();
+				}
+			};
+			xhr.send(null);
+			dom.byId('mess').innerHTML = "Start request";
+			dom.byId('sign_in').disabled = true;
+		}
+		
+		function generateUUID() {
+		    var d = new Date().getTime();
+		    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		        var r = (d + Math.random()*16)%16 | 0;
+		        d = Math.floor(d/16);
+		        return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+		    });
+		    return uuid;
+		}
+
+		function abortReq()
+		{
+			window.cep.fs.deleteFile(tempPath);
+			tempPath = "";
+			var xhr3 = new XMLHttpRequest();
+			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			addr += id;
+			addr += "&action=abort";
+			xhr3.open("GET", addr, true);
+			xhr3.onreadystatechange = function() {
+				if (xhr3.readyState == 4)
+				{
+					id = "";
+					dom.byId('sign_in').disabled = false;
+					dom.byId('abort_queue').disabled = true;
+					dom.byId('abort_queue').style.display = "none";
+					dom.byId('mess').innerHTML = "";
+				}
+			};
+			xhr3.send(null);	
+		}
+
+		function getResult()
+		{
+			window.cep.fs.deleteFile(tempPath);
+			tempPath = "";
+			var xhr2 = new XMLHttpRequest();
+			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			addr += id;
+			addr += "&action=get";
+			xhr2.open("GET", addr, true);
+			xhr2.onreadystatechange = function() {
+				if (xhr2.readyState == 4)
+				{
+					if (xhr2.status == 200)
+					{
+						id = "";
+						dom.byId('sign_in').disabled = false;
+						dom.byId('abort_queue').disabled = true;
+						dom.byId('abort_queue').style.display = "none";
+						var jRes = JSON.parse(xhr2.responseText);
+						if (jRes.error != "No")
+							dom.byId('mess').innerHTML = "Error: " + jRes.error;
+						else
+						{
+							//dom.byId('mess').innerHTML = "Token: " + jRes.token;
+							idManager.registerToken({
+								server: "http://www.arcgis.com/sharing/rest",
+								userId: jRes.user,
+								token: jRes.token,
+								expires: jRes.expires_in,
+								ssl: false
+							});
+							var cred = idManager.findCredential("http://www.arcgis.com/sharing/rest", jRes.user);
+							console.log(cred);
+					        new esriPortal.Portal("https://www.arcgis.com").signIn().then(
+					        		function(portalUser) {
+					        			queryPortal(portalUser);
+					        		}
+					        	).otherwise(
+					        			function(error) {
+					        				console.log("Error occurred while signing in: ", error);
+					        			}
+					        	);
+						}
+					}
+				}
+			};
+			xhr2.send(null);	
+		}
+		function queryPortal(portalUser) {
+	        var portal = portalUser.portal;
+	        var queryParams = {
+	          q:          "owner:" + portalUser.username,
+	          sortField:  "numViews",
+	          sortOrder:  "desc",
+	          num:        5
+	        };
+	        portal.queryItems(queryParams).then(createGallery);
+		}
+		
+		function createGallery(items) {
+			if (items.results.length > 0)
+				dom.byId('mess').innerHTML = "First found item: Title - " + items.results[0].title + ", Type - " + items.results[0].type;
+			else
+				dom.byId('mess').innerHTML = "No items found";
+		}
+
+		function repeat()
+		{
+			chekRes();
+		}
+
+		function chekRes()
+		{
+			var xhr1 = new XMLHttpRequest();
+			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			addr += id;
+			addr += "&action=check";
+			xhr1.open("GET", addr, true);
+			xhr1.onreadystatechange = function() {
+				if (xhr1.readyState == 4)
+				{
+					if (xhr1.status == 200)
+					{
+						var res = JSON.parse(xhr1.responseText);
+						if (res.error != "No")
+						{
+							abortReq();
+							return;
+						}
+						if (res.state == "ready")
+							getResult();
+						else
+							setTimeout(repeat, 2000);
+					}
+					else
+						abortReq();
+				}
+			};
+			xhr1.send(null);	
+		}
+
+		function startDialog()
+		{
+			dom.byId('abort_queue').disabled = false;
+			dom.byId('abort_queue').style.display = "block";
+			mYInst.requestOpenExtension("com.example.AuthorizeDialog.extension1", "");
+			setTimeout(repeat, 1000);
+		}
+	});
+</script>
+
+<title>AutorizationPrototype</title>
+</head>
+
+<body onLoad="onLoaded()">
+<div id="content">
+	<button class="default" id="sign_in" disabled="true">Sign in</button>		
+	<button class="default" id="abort_queue" disabled="true" style="display: none">Abort</button>		
+	<div id="mess">
+	</div>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>OAuth Popup Callback</title>
+  
+  <style>
+    html, body {
+      height: 100%; 
+      width: 100%;
+      margin: 0px;
+      padding: 0px;
+      font-family: Lucida Sans,Lucida Grande,Arial !important;
+      font-size: 14px;
+    }
+  </style>
+
+  <script>
+    function initialize() {
+      //console.log("oauth callback");
+      
+	  var rest = window.location.href;
+	  var temp = ".html#";
+	  var n = rest.search(temp);
+	  if (n < 0)
+	  {
+		var errMess = document.getElementById("er_mess");
+		errMess.innerHTML = "Authorizing should not start from menu";
+		return;
+	  }
+	  n += temp.length;
+	  var len = rest.length - n;
+	  var str = rest.substr(n, len);
+	  if (str.length == 0)
+	  {
+		var errMess = document.getElementById("er_mess");
+		errMess.innerHTML = "Authorizing should not start from menu";
+		return;
+	  }
+	  if (window.sessionStorage.length == 0)
+	  {
+		window.sessionStorage.setItem("id", str);
+		window.location = "https://www.arcgis.com/sharing/oauth2/authorize?client_id=ytCWt98Db64eHWd7&response_type=token&redirect_uri=http://testauth.dataeast.com/AH/oauth-callback.html";
+		}
+		else
+		{
+			var ii = window.sessionStorage.getItem("id");
+			var xhr = new XMLHttpRequest();
+			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			addr += ii;
+			addr += "&action=refresh&";
+			addr += str;
+			xhr.open("GET", addr, true);
+			xhr.onreadystatechange = function() {	
+				if (xhr.readyState == 4)
+				{
+					if (xhr.status == 200)
+					{
+						window.__adobe_cep__.closeExtension();
+					}
+				}
+			};
+			xhr.send(null);
+			window.sessionStorage.clear();
+		}
+    }
+  </script>
+</head>
+
+<body onload="initialize();">
+Redirecting to Sing in page.
+<div id="er_mess">
+</div>
+  <!--OAuth Popup Callback-->
+</body>
+</html>
