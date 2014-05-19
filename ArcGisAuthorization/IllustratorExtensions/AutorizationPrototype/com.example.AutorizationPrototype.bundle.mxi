@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<macromedia-extension id="com.example.AutorizationPrototype" name="com.example.AutorizationPrototype" requires-restart="true" version="1.0.0">
+  <author name="Unknown"/>
+  <description/>
+  <license-agreement/>
+  <products>
+    <product familyname="Illustrator"/>
+  </products>
+  <files>
+    <file destination="" file-type="CSXS" products="" source="AutorizationPrototype.zxp"/>
+    <file destination="" file-type="CSXS" products="" source="AuthorizeDialog.zxp"/>
+  </files>
+</macromedia-extension>
