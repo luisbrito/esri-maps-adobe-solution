@@ -31,20 +31,25 @@
 					// Add PDF to Illustrator document
 					var extScript = '$._ext_ILST.run("' + userPath + '")';
 					inter.evalScript( extScript, function ( pp ) {
-
-						if (callb)
-							callb();
-						// Got here from the heart of Illustrator
 						window.cep.fs.deleteFile( userPath );
+						var newScript = '$._ext_ILST.xmpUpdate("102100;30e5fe3149c34df1ba922e6f5bbf808f")';
+						inter.evalScript(newScript, function(ret){
+							if (callb)
+								callb();
+						});
+						// Got here from the heart of Illustrator
 						
 					} );
-					console.log( "what" );
 				};
 				// Go to convert
 				reader.readAsDataURL( blob );
 			}
 			else
+			{
 				alert( "Could not download PDF file" );
+				if (callb)
+					callb();
+			}
 		};
 
 		// Go to download

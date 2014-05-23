@@ -98,11 +98,11 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Too
 			SearchTool.serviceList.deleteAll();
 			if ( response.total > 0 ) {
 				for ( var i = 0; i < response.results.length; i++ ) {
-					SearchTool.serviceList.appendService( response.results[i] );
+					SearchTool.serviceList.appendService( response.results[i], i );
 				}
 			} else {
 				// Just report about empty search result
-				dom.byId( 'services-content' ).innerHTML = '<h2>Group Results</h2><p>No groups were found. If the group is not public use the sign-in link to sign in and find private groups.</p>';
+				dom.byId( 'services-content' ).innerHTML = '<h2>Group Results</h2><p>No feature service was found. If the group is not public use the sign-in link to sign in and find private groups.</p>';
 			}
 		}
 		else {
@@ -131,16 +131,10 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Too
 	};
 
 	SearchTool.zoomToExtent = function ( extent ) {
-		var ext = extent.expand( 1.2 );
-		cp = ext.getCenter();
-		var dw = map.extent.getWidth() / ext.getWidth();
-		dw = dw >= 1 ? dw : ( 1 / dw );
-		var dh = map.extent.getHeight() / ext.getHeight();
-		dh = dh >= 1 ? dh : ( 1 / dh );
-		if ( dw > 1.2 || dh > 1.2 )
-			map.setExtent( ext, true );
+		cp = extent.getCenter();
+		map.setExtent( extent, true );
 
 		map.centerAt( cp );
 
-	}
+	};
 } );

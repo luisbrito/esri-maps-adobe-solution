@@ -1,9 +1,11 @@
 define( ["dojo/_base/array", "dojo/_base/lang", "dojo/query", "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct",
 	"esri/request",
+	"esri/SpatialReference",
+	"esri/tasks/ProjectParameters",
 	"esri/layers/FeatureLayer",
 	"js/globals"
 ],
-function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest ) {
+function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, SpatialReference, ProjectParameters ) {
 
 	RequestManager = ( function (services ) {
 
@@ -18,26 +20,22 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest ) {
 		getCurrentService = function () {
 			return serviceQueue[currentService];
 		};
+		
 		runLayer = function ( layer ) {
 			var flayer = new esri.layers.FeatureLayer( layer.url );
-			var layerExtent = new esri.geometry.Extent( {
-				"xmin": layer.service.extent[0][0],
-				"ymin": layer.service.extent[0][1],
-				"xmax": layer.service.extent[1][0],
-				"ymax": layer.service.extent[1][1],
-				"spatialReference": layer.service.spatialReference
-			} );
-
-			var webExtent = esri.geometry.geographicToWebMercator( layerExtent );
-			if ( me.extent == null )
-				me.extent = webExtent;
-			else
-				me.extent = me.extent.union( webExtent );
 
 			flayer.id = layer.id;
-			map.addLayer( flayer );
-			if ( me.OnLayerAdded != null )
-				me.OnLayerAdded( layer );
+			var lay = map.addLayer( flayer );
+			lay.service = layer.service;
+/*			lay.onLoad = function(res){
+				if ( me.OnLayerAdded != null )
+					me.OnLayerAdded( layer ); 
+				
+			};*/
+			lay.on("load", function(laye){
+				if ( me.OnLayerAdded != null )
+					me.OnLayerAdded( {id: laye.layer.id, url: laye.layer.url, service: laye.layer.service} ); 
+			});
 		};
 
 		runService = function () {
@@ -50,30 +48,36 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest ) {
 			}
 
 			var service = serviceQueue[currentService];
-			var serviceRequest = esriRequest( {
-				url: service.url + "?f=pjson",
-				handleAs: "json",
-				callbackParamName: "callback"
-			} );
-
-			serviceRequest.then(
-				function ( response ) {
-					if ( response.layers != null ){ 
-						for ( var i = 0; i < response.layers.length; ++i ) {
-							var layer = response.layers[i];
-							runLayer( { id: service.title, url: service.url + "/" + layer.id.toString(), service: service });
-						}
-
-					}
-					currentService++;
-					runService();
-
-				},
-				function ( error ) {
-					runService();
-				}
-			);
-
+			if ( service.info.layers == null )
+			{
+				currentService++;
+				runService();
+				return;
+			}
+			var extSr = new SpatialReference(service.info.fullExtent.spatialReference);
+			var extWebM = new SpatialReference(102100);
+			var isEq = extWebM.equals(extSr);
+			var webExtent;
+			if (isEq) {
+				webExtent = new esri.geometry.Extent(service.info.fullExtent.xmin,
+						service.info.fullExtent.ymin, service.info.fullExtent.xmax, service.info.fullExtent.ymax, extWebM);
+			}
+			else
+			{
+				var layerExtent = new esri.geometry.Extent(service.info.fullExtent.xmin,
+					service.info.fullExtent.ymin, service.info.fullExtent.xmax, service.info.fullExtent.ymax, extSr);
+				webExtent = esri.geometry.geographicToWebMercator( layerExtent );
+			}
+			if ( me.extent == null )
+				me.extent = webExtent;
+			else
+				me.extent = me.extent.union(webExtent);
+			for ( var i = 0; i < service.info.layers.length; ++i ) {
+				var layer = service.info.layers[i];
+				runLayer( { id: service.title, url: service.url + "/" + layer.id.toString(), service: service });
+			}
+			currentService++;
+			runService();
 		};
 
 		this.run = function () {

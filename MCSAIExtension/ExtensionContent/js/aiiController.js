@@ -29,10 +29,11 @@ define([
 
     var portalUrl = 'http://www.arcgis.com';
     //var geometryServiceUrl = "http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer";
-    var geometryServiceUrl = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer";
-    var mapServerUrl = "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer";
+    //var geometryServiceUrl = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer";
+    //var mapServerUrl = "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer";
+    var portalProps = null;
 
-    var portal, portalUrl, groupGrid, lastStyle, mapInfo, geoService;
+    var portal, portalUrl, groupGrid, lastStyle, mapInfo;
     function startup() {
         //create the portal
         portal = new esriPortal.Portal(portalUrl);
@@ -40,10 +41,19 @@ define([
         on(portal, 'ready', function (p) {
             dom.byId('findResults').disabled = false;
             on(dom.byId('findResults'), 'click', SearchTool.findFeatureServices);
-
+            var reqPath = portalUrl + "/sharing/rest/portals/self?f=json";
+            partalPropsReq = esriRequest({url:reqPath, handleAs:"json", callbackParamName:"callback"});
+            partalPropsReq.then(
+            		function(response)
+            		{
+            			portalProps = response;
+            			geometryService = new GeometryService(portalProps.helperServices.geometry.url);
+            			console.log(portalProps);
+            	        createMap();
+            		}
+            );
         });
 
-        createMap();
 
         var serviceTab = dom.byId( "serviceList" );
         if ( serviceTab != null ) {
@@ -80,7 +90,7 @@ define([
         	//if ( window.cep == null ) 
         	//	dlb.className = "buttonGrey";
 			//else 
-				dlb.onclick = downloadMap;
+				dlb.onclick = startDownLoadMap;
         	
 
         }
@@ -135,71 +145,17 @@ define([
     }
 
     function createMap() {
-    	//arcgisUtils.createMap( "30e5fe3149c34df1ba922e6f5bbf808f", "map" ).then( function ( response ) {
-    	//	//update the app 
-    	//	//dom.byId( "title" ).innerHTML = response.itemInfo.item.title;
-    	//	//dom.byId( "subtitle" ).innerHTML = response.itemInfo.item.snippet;
-
-    	//	map = response.map;
-    	//	dojo.connect( map, "onLoad", onMapLoad );
-
-    	//} );
-
-    	//return;
-        var startExtent = esri.geometry.Extent({
-            "xmin": -15204166.06,
-            "ymin": 1593253.26,
-            "xmax": -6398620.40,
-            "ymax": 7463617.03,
-            "spatialReference": {
-                "wkid": 102100
-            }
-        });
-        map = new esri.Map("map", {
-            //center: [-110, 35], // long, lat
-        	extent: startExtent,
-            //nav:false,
-            sliderStyle: "small",
-            //sliderPosition: "top-right"
-            //zoom: 5,
-            //basemap: "topo"
-        } );
-
-
-        var baseLayer = esri.dijit.BasemapLayer( {
-        	url: "http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer"
-        } );
-
-        var baseLayers = [];
-        baseLayers.push( baseLayer );
-
-        var basemap = esri.dijit.Basemap( {
-        	layers: baseLayers,
-        	id: "Topographic",
-        	title: "Topographic"
-        } );
-
-        var basemaps = [];
-        basemaps.push( basemap );
-        basemapGallery = esri.dijit.BasemapGallery( {
-        	showArcGISBasemaps: false,
-        	basemaps: basemaps,
-        	//bingMapsKey: '30e5fe3149c34df1ba922e6f5bbf808f',
-        	map: map
-        } );
-
-        map.resize();
-        dojo.connect(map, "onLoad", onMapLoad);
+    	
+    	map = new esri.Map("map", {basemap: "topo"});
+   		dojo.connect( map, "onLoad", onMapLoad );
         var rsb = dom.byId( 'runServiceBtn' );
         if ( rsb != null ) {
-        	rsb.innerHTML = Headers.runService;
-        	rsb.title = Headers.runService;
-        	rsb.onclick = function ( event ) {
-        		SearchTool.runSelectedServices();
-        	}
-       	};
-
- 
+           	rsb.innerHTML = Headers.runService;
+           	rsb.title = Headers.runService;
+           	rsb.onclick = function ( event ) {
+           		SearchTool.runSelectedServices();
+           	};
+        } 
     }
 
     function onMapLoad() {
@@ -207,6 +163,34 @@ define([
     	layerList.addLayer( map.getLayer( "layer0" ) );
 
     	map.resize();
+    }
+    
+    function startDownLoadMap()
+    {
+    	var addLs = map.graphicsLayerIds;
+    	var ext = null;
+    	var extWebM = new SpatialReference(102100);
+    	for (var i = 0; i < addLs.length; i++)
+    	{
+    		var lay = map.getLayer(addLs[i]);
+    		var ex;
+    		if (extWebM.equals(lay.fullExtent.spatialReference))
+    			ex = lay.fullExtent;
+    		else
+    		{
+    			ex =esri.geometry.geographicToWebMercator(lay.fullExtent);
+    		}
+    		if (ext == null)
+    			ext = ex;
+    		else
+    			ext.union(ex);
+    	}
+    	if (ext != null)
+    		map.setExtent(ext).then(function(res){
+    			downloadMap();
+    		});
+    	else
+    		downloadMap();
     }
 
     function downloadMap() {
@@ -231,7 +215,8 @@ define([
     			url: mapLayer.url
     		};
     		if ( idx == 0 ) {
-
+    			opLayer.visibility = "false";
+    			opLayer.opacity = "1";
     			webMap.baseMap.baseMapLayers = [opLayer];
     			webMap.baseMap.title = map.getBasemap();
     		}
@@ -246,12 +231,16 @@ define([
 
     	var strMap = JSON.stringify( webMap );
     	// REST request to GP tool for exporting web maps
-    	var ppp = 'http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task/execute?Web_Map_as_JSON=';
-    	ppp += strMap;
-    	ppp += '&Format=pdf&Layout_Template=&outSR=&processSR=&returnZ=false&returnM=false&f=pjson';
-    	console.log( ppp );
+    	var exportUrl;
+    	if(portalProps.helperServices.printTask.url)
+    		exportUrl = portalProps.helperServices.printTask.url;
+    	else
+    		exportUrl = 'http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task';
+    	exportUrl += '/execute?Web_Map_as_JSON=';
+    	exportUrl += strMap;
+    	exportUrl += '&Format=pdf&Layout_Template=&outSR=&processSR=&returnZ=false&returnM=false&f=pjson';
     	var pdfRequest = esriRequest( {
-    		url: ppp,
+    		url: exportUrl,
     		handleAs: "json",
     		callbackParamName: "callback"
     	} );
@@ -260,10 +249,9 @@ define([
 				// success request
 				dom.byId( 'downloadStatus' ).innerHTML = '';
 				console.log( response );
-				window.open( response.results[0].value.url );
-				//downloadPdf( response.results[0].value.url, function(){
-				//		dom.byId('downloadStatus').innerHTML = '';
-				//	} );
+				downloadPdf( response.results[0].value.url, function(){
+						dom.byId('downloadStatus').innerHTML = '';
+					} );
 			}, function ( error ) {
 				alert( "Could not export feature service" );
 			} );

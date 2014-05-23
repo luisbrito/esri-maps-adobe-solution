@@ -52,11 +52,11 @@ function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
 
         };
 
-        addService = function (service) {
+        addService = function (service, i) {
             //var itemCount = me.getCount();
             var li = document.createElement('li');
             li.className = me.classes.notSelectedItem;
-            li.id = "li" + service.title;
+            li.id = "li" + i + service.title;
             li.title = service.description;
 
             //var selItem = me.selectItem;
@@ -105,7 +105,7 @@ function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
             sortList();
         };
 
-        this.appendService = function (service) {
+        this.appendService = function (service, i) {
             var serviceRequest = esriRequest({
                 url: service.url + "?f=pjson",
                 handleAs: "json",
@@ -116,7 +116,7 @@ function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
 			        if (response.layers != null && response.layers.length > 0) {
 			            var itemService = service;
 			            itemService.info = response;
-			            addService(itemService);
+			            addService(itemService, i);
 			        }
 			    },
                 function (error) {

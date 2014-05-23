@@ -1,5 +1,5 @@
-define( ["dojo/_base/array", "dojo/_base/lang", "dojo/query", "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct", "esri/request", "js/ItemList"],
-function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest ) {
+define( ["dojo/_base/array", "dojo/_base/lang", "dojo/query", "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct", "esri/request", "esri/geometry/Extent", "js/ItemList"],
+function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Extent ) {
 
 	LayerList = function ( id, parentNode ) {
 		this.parentElement = parentNode;
@@ -98,7 +98,7 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest ) {
 			lastStyle = layerNode.style.backgroundColor;
 
 			// Add <span> with title of found feature layer 
-			on( li, 'dblclick', me.OnDblClick );
+			on( li, 'dblclick', OnDblClick1 );
 
 			li.layer = layer;
 
@@ -180,6 +180,22 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest ) {
 
 			map.reorderLayer( li.layer.id, me.getIndex( li ) - 1 );
 			setTimeout( showButtons, 100 );
+		};
+		
+		OnDblClick1 = function (e)
+		{
+			var exx = null;
+			if (e.currentTarget.layer.id == "layer0")
+			{
+				exx = e.currentTarget.layer.fullExtent;
+			}
+			else
+			{
+				exx = new Extent(e.currentTarget.layer.service.info.fullExtent);
+			}
+			cp = exx.getCenter();
+			map.setExtent(exx);
+			map.centerAt( cp );
 		};
 
 		return this;

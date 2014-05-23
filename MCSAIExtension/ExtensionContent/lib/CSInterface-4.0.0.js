@@ -397,10 +397,7 @@ function CSInterface()
 CSInterface.THEME_COLOR_CHANGED_EVENT = "com.adobe.csxs.events.ThemeColorChanged";
 
 /** The host environment data object. */
-var hostEnvi = null;
-if ( window.__adobe_cep__ != null )
-	hostEnvi = JSON.parse( window.__adobe_cep__.getHostEnvironment() );
-CSInterface.prototype.hostEnvironment = hostEnvi;
+CSInterface.prototype.hostEnvironment = JSON.parse(window.__adobe_cep__.getHostEnvironment());
 
 /** Retrieves information about the host environment in which the
  *  extension is currently running.
@@ -409,11 +406,8 @@ CSInterface.prototype.hostEnvironment = hostEnvi;
  */
 CSInterface.prototype.getHostEnvironment = function()
 {
-	this.hostEnvironment = null;
-	if ( window.__adobe_cep__ != null )
-		this.hostEnvironment = JSON.parse( window.__adobe_cep__.getHostEnvironment() );
-
-	return this.hostEnvironment;
+    this.hostEnvironment = JSON.parse(window.__adobe_cep__.getHostEnvironment());
+    return this.hostEnvironment;
 };
 
 /** Closes this extension. */

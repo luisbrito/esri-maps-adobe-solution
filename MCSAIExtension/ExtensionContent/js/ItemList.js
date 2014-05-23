@@ -494,7 +494,7 @@ function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
             },
             showProperties: function (item, mode) {
                 this.selectItem(item, mode);
-            },
+            }
         };
     })();
 });

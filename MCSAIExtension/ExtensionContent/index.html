@@ -3,7 +3,6 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=9" />
 	<link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css" />
 	<link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css" />
 	<link rel="stylesheet" type="text/css" href="./css/aii.css" />
@@ -12,7 +11,7 @@
 			async : true,
 			//baseUrl: "/js/",
 			tlmSiblingOfDojo : false,
-			isDebug : 0,
+			//isDebug : 0,
 			packages : [{
 				name : "js",
 				location : "/../js"
@@ -20,7 +19,7 @@
 			};
 	</script>
 	<script src="./lib/CSInterface-4.0.0.js"></script>
-	<script src="./js/ext.js"></script>
+	<script src="./ext.js"></script>
 	<script type="text/javascript" src="http://js.arcgis.com/3.9/"></script>
 	<script type="text/javascript">
 		require( ["dojo/parser", "js/aiiController", "dijit/layout/BorderContainer", "dijit/layout/StackContainer", "dijit/layout/ContentPane"], function ( parser, aiiController) {
@@ -28,7 +27,7 @@
 			parser.parse();
 			// now configure the dijits and tasks
 			aiiController.startup();
-			esri.config.defaults.io.proxyUrl = "proxy/proxy.ashx";
+			//esri.config.defaults.io.proxyUrl = "proxy/proxy.ashx";
 		} );
 	</script>
 
