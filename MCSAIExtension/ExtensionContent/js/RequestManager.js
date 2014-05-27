@@ -27,11 +27,6 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Spa
 			flayer.id = layer.id;
 			var lay = map.addLayer( flayer );
 			lay.service = layer.service;
-/*			lay.onLoad = function(res){
-				if ( me.OnLayerAdded != null )
-					me.OnLayerAdded( layer ); 
-				
-			};*/
 			lay.on("load", function(laye){
 				if ( me.OnLayerAdded != null )
 					me.OnLayerAdded( {id: laye.layer.id, url: laye.layer.url, service: laye.layer.service} ); 

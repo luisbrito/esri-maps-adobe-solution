@@ -1,4 +1,4 @@
-	function downloadPdf( ppid, callb ) {
+	function downloadPdf( ppid, sc, ext, sr, mType, callb ) {
 
 		// Get the path to save tmp file
 		var inter = new CSInterface();
@@ -32,7 +32,26 @@
 					var extScript = '$._ext_ILST.run("' + userPath + '")';
 					inter.evalScript( extScript, function ( pp ) {
 						window.cep.fs.deleteFile( userPath );
-						var newScript = '$._ext_ILST.xmpUpdate("102100;30e5fe3149c34df1ba922e6f5bbf808f")';
+						var newScript = '$._ext_ILST.xmpUpdate("';
+						newScript += sc.toString();
+						newScript += ';';
+						var xy = ext.xmax;
+						newScript += xy.toString();
+						newScript += ';';
+						xy = ext.xmin;
+						newScript += xy.toString();
+						newScript += ';';
+						xy = ext.ymax;
+						newScript += xy.toString();
+						newScript += ';';
+						xy = ext.ymin;
+						newScript += xy.toString();
+						newScript += ';';
+						newScript += sr.toString();
+						newScript += ';';
+						newScript += mType;
+						newScript += '")';
+						//"102100;30e5fe3149c34df1ba922e6f5bbf808f")';
 						inter.evalScript(newScript, function(ret){
 							if (callb)
 								callb();

@@ -167,6 +167,7 @@ define([
     
     function startDownLoadMap()
     {
+    	dom.byId("prg_container").style.display="block";
     	var addLs = map.graphicsLayerIds;
     	var ext = null;
     	var extWebM = new SpatialReference(102100);
@@ -175,7 +176,9 @@ define([
     		var lay = map.getLayer(addLs[i]);
     		var ex;
     		if (extWebM.equals(lay.fullExtent.spatialReference))
-    			ex = lay.fullExtent;
+    		{
+    			ex = lay.fullExtent;    			
+    		}
     		else
     		{
     			ex =esri.geometry.geographicToWebMercator(lay.fullExtent);
@@ -183,10 +186,10 @@ define([
     		if (ext == null)
     			ext = ex;
     		else
-    			ext.union(ex);
+    			ext = ext.union(ex);
     	}
     	if (ext != null)
-    		map.setExtent(ext).then(function(res){
+    		map.setExtent(ext, true).then(function(res){
     			downloadMap();
     		});
     	else
@@ -248,11 +251,17 @@ define([
 			function ( response ) {
 				// success request
 				dom.byId( 'downloadStatus' ).innerHTML = '';
-				console.log( response );
-				downloadPdf( response.results[0].value.url, function(){
+				var sc = map.getScale();
+				var bId = map.basemapLayerIds[0];
+				var lar = map.getLayer(bId);
+				var srId = map.spatialReference.wkid;
+				downloadPdf( response.results[0].value.url, sc,map.extent, srId, "topo", function(){
+					dom.byId("prg_container").style.display="none";
 						dom.byId('downloadStatus').innerHTML = '';
 					} );
 			}, function ( error ) {
+				dom.byId('downloadStatus').innerHTML = '';
+				dom.byId("prg_container").style.display="none";
 				alert( "Could not export feature service" );
 			} );
 

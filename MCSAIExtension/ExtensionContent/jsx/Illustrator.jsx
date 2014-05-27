@@ -78,7 +78,7 @@ $._ext_ILST={
 	    
 	   xmpUpdate: function(newXmp)
 	   {
-	   		var props = newXmp.split(";",2);
+	   		var props = newXmp.split(";",7);
 	   		if ((props == undefined) || (props.length < 2))
 	   			return '{"error" : "No input data"}'; 
 	    	if (app.documents.length == 0)
@@ -98,8 +98,13 @@ $._ext_ILST={
 			if (myXmp == undefined)
 				return '{"error" : "No XMP"}';
 			var pr = XMPMeta.registerNamespace ("http://ArcGIS.com/", "arcGIS"); //Register the prefix with name space
-			myXmp.setProperty("http://ArcGIS.com/", "SpatialReference",  props[0]);
-			myXmp.setProperty("http://ArcGIS.com/", "BaseMapID",  props[1]);
+			myXmp.setProperty("http://ArcGIS.com/", "Scale",  props[0]);
+			myXmp.setProperty("http://ArcGIS.com/", "xmin",  props[1]);
+			myXmp.setProperty("http://ArcGIS.com/", "xmax",  props[2]);
+			myXmp.setProperty("http://ArcGIS.com/", "ymin",  props[3]);
+			myXmp.setProperty("http://ArcGIS.com/", "ymax",  props[4]);
+			myXmp.setProperty("http://ArcGIS.com/", "SpatialReference",  props[5]);
+			myXmp.setProperty("http://ArcGIS.com/", "BaseMap",  props[6]);
 			var ser = myXmp.serialize();
 			doc.XMPString = ser;
 			return '{"error" : "No"}';
