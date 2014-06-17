@@ -19,6 +19,7 @@
 	</ExecutionEnvironment>
 	<DispatchInfoList>
 		<Extension Id="com.esri.MCSAIExtension.extension1">
+
 			<DispatchInfo >
 				<Resources>
 				<MainPath>./index.html</MainPath>
@@ -29,7 +30,7 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>ArcGIS Online</Menu>
+					<Menu>Esri Maps for Adobe Creative Cloud</Menu>
 					<Geometry>
 						<Size>
 							<Height>400</Height>
@@ -40,6 +41,13 @@
 							<Width>600</Width>
 						</MinSize>
 					</Geometry>
+					<Icons>
+						<Icon Type="Normal">./images/arcgis32.png</Icon>
+						<Icon Type="RollOver">./images/arcgis32.png</Icon>
+						<Icon Type="Disabled">./images/arcgis32.png</Icon>
+						<Icon Type="DarkNormal">./images/arcgis32.png</Icon>
+						<Icon Type="DarkRollOver">./images/arcgis32.png</Icon>
+					</Icons>
 				</UI>
 			</DispatchInfo>
 		</Extension>

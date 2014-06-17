@@ -137,7 +137,7 @@ html, body, .container {
 #header .headerLinks
 {
 	float: left;
-	width: 200px;
+	width: 250px;
 	height: 20px;
 	padding-top:10px;
 }
@@ -161,7 +161,7 @@ html, body, .container {
 	margin-right:10px;
 	padding:6px 0 0 0;
 	max-height:60px;
-	max-width:330px;
+	max-width:360px;
 	overflow:hidden;
 }
 
@@ -668,6 +668,7 @@ select.dropdown option{
 {
 	height:10px;
 	overflow:hidden;
+	font-family: "Arial";
 }
 
 #infoPane  

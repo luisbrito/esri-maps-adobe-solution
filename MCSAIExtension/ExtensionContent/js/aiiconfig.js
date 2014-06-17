@@ -8,9 +8,9 @@ var LogoHeight= 39;
 
 // TAB HEADERS USED TO LABEL THE PRODUCT AND EXPORT TABS
 var Headers = {
-	layers: "Feature Services",
-	SearchDataPlaceholder: "search service...",
-	runService: "Add selected features",
+	layers: "Map Layers",
+	SearchDataPlaceholder: "search layer...",
+	runService: "Add selected layer",
 	download: "Download Map",
 	download_description: "Download Map"
 };

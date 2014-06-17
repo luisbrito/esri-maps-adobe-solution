@@ -97,7 +97,7 @@ define([
 
         var addRect = dom.byId( 'addRect' );
         if ( addRect != null ) {
-        	addRect.innerHTML = "Define AOI";
+        	addRect.innerHTML = "Define Map Extent";
         	//addRect.onclick = onAddRect;
  //       	dlb.title = Headers.download_description;
         }
@@ -214,7 +214,7 @@ define([
                 editTool.activate(Edit.MOVE|Edit.SCALE,evt.graphic);
               });
      	}
-    	addRect.innerHTML = "Remove AOI";
+    	addRect.innerHTML = "Remove Map Extent";
     }
     
     function endEditGraph(evt){
@@ -226,7 +226,7 @@ define([
     
     function onAddRect(){
     	var addRect = dom.byId( 'addRect' );
-    	if (addRect.innerHTML == "Define AOI"){
+    	if (addRect.innerHTML == "Define Map Extent"){
 	    	aoiExtent = null;
 	    	oaiGraphic = null;
 	    	if (tb == null){
@@ -236,7 +236,7 @@ define([
 	    	map.disableMapNavigation();
 	    	tb.activate(Draw.RECTANGLE);
     	}
-    	else if (addRect.innerHTML == "Remove AOI"){
+    	else if (addRect.innerHTML == "Remove Map Extent"){
     		editTool.deactivate();
     		map.graphics.remove(oaiGraphic);
 	    	aoiExtent = null;
