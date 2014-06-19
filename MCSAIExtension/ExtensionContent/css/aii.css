@@ -729,7 +729,7 @@ select.dropdown option{
 
 .statusbar2
 {
-	text-align:left;
+	text-align:right;
 	font-family: "Arial";
 	font-size: 14px;
 	text-shadow:0 -1px 0 rgba(0, 0, 0, 0.2);
