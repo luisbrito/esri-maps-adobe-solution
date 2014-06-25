@@ -3,7 +3,6 @@
 	<name>AutorizationPrototype</name>
 	<comment></comment>
 	<projects>
-		<project>AuthorizeDialog</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

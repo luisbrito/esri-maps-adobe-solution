@@ -3,11 +3,11 @@
 <html>
 <head>
 <meta charset="utf-8">
-<script src="./ext.js"></script>
 <script src="./lib/CSInterface-4.0.0.js"></script>
 <script src="http://js.arcgis.com/3.9compact/"></script>
 <script>
 	var mYInst = null, id = "", tempPath = "";
+	var serviceURL = "http://pod.arcgis.com:8080/AiAuthorization4tomcat/AiAuthTest?id=";
 	require([
 	         "esri/arcgis/Portal",
 	         "esri/IdentityManager",
@@ -29,7 +29,7 @@
 			var res = window.cep.fs.writeFile(tempPath, id);
 			console.log(res);
 			var xhr = new XMLHttpRequest();
-			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			var addr = serviceURL;
 			addr += id;
 			addr += "&action=add";
 			xhr.open("GET", addr, true);
@@ -64,7 +64,7 @@
 			window.cep.fs.deleteFile(tempPath);
 			tempPath = "";
 			var xhr3 = new XMLHttpRequest();
-			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			var addr = serviceURL;
 			addr += id;
 			addr += "&action=abort";
 			xhr3.open("GET", addr, true);
@@ -86,7 +86,7 @@
 			window.cep.fs.deleteFile(tempPath);
 			tempPath = "";
 			var xhr2 = new XMLHttpRequest();
-			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			var addr = serviceURL;
 			addr += id;
 			addr += "&action=get";
 			xhr2.open("GET", addr, true);
@@ -155,7 +155,7 @@
 		function chekRes()
 		{
 			var xhr1 = new XMLHttpRequest();
-			var addr = "http://testauth.dataeast.com/MyFirstTomCat/AiAuthTest?id=";
+			var addr = serviceURL;
 			addr += id;
 			addr += "&action=check";
 			xhr1.open("GET", addr, true);
@@ -186,7 +186,7 @@
 		{
 			dom.byId('abort_queue').disabled = false;
 			dom.byId('abort_queue').style.display = "block";
-			mYInst.requestOpenExtension("com.example.AuthorizeDialog.extension1", "");
+			mYInst.requestOpenExtension("com.example.AutorizationPrototype.dialog", "");
 			setTimeout(repeat, 1000);
 		}
 	});
@@ -195,7 +195,7 @@
 <title>AutorizationPrototype</title>
 </head>
 
-<body onLoad="onLoaded()">
+<body>
 <div id="content">
 	<button class="default" id="sign_in" disabled="true">Sign in</button>		
 	<button class="default" id="abort_queue" disabled="true" style="display: none">Abort</button>		

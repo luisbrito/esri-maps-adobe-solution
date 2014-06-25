@@ -3,6 +3,7 @@
 <ExtensionManifest Version="4.0" ExtensionBundleId="com.example.AutorizationPrototype" ExtensionBundleVersion="1.0.0"
 		ExtensionBundleName="AutorizationPrototype" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
+		<Extension Id="com.example.AutorizationPrototype.dialog" Version="1.0" />
 		<Extension Id="com.example.AutorizationPrototype.extension1" Version="1.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
@@ -18,6 +19,29 @@
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
+		<Extension Id="com.example.AutorizationPrototype.dialog">
+			<DispatchInfo >
+				<Resources>
+				<MainPath>./dialog.html</MainPath>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>ModalDialog</Type>
+					<Geometry>
+						<Size>
+							<Height>500</Height>
+							<Width>300</Width>
+						</Size>
+						<MinSize>
+							<Height>500</Height>
+							<Width>300</Width>
+						</MinSize>
+					</Geometry>
+				</UI>
+			</DispatchInfo>
+		</Extension>
 		<Extension Id="com.example.AutorizationPrototype.extension1">
 			<DispatchInfo >
 				<Resources>
