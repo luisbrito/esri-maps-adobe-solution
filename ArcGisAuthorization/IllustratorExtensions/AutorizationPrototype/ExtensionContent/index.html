@@ -6,7 +6,7 @@
 <script src="./lib/CSInterface-4.0.0.js"></script>
 <script src="http://js.arcgis.com/3.9compact/"></script>
 <script>
-	var mYInst = null, id = "", tempPath = "";
+	var mYInst = null, id = "", tempPath = "", myPortal;
 	var serviceURL = "http://pod.arcgis.com:8080/AiAuthorization4tomcat/AiAuthTest?id=";
 	require([
 	         "esri/arcgis/Portal",
@@ -23,6 +23,17 @@
 		});
 		
 		function logIn() {
+			if (dom.byId('sign_in').innerHTML == "Sign Out")
+			{
+				dom.byId('sign_in').innerHTML = "Sign in";
+				if (myPortal != null)
+				{
+					myPortal.signOut();
+					myPortal = null;
+				}
+				dom.byId('mess').innerHTML = "";
+				return;
+			}
 			id = generateUUID();
 			tempPath = mYInst.getSystemPath(SystemPath.USER_DATA);
 			tempPath += "/ArcGISillustrator.uid";
@@ -97,6 +108,7 @@
 					{
 						id = "";
 						dom.byId('sign_in').disabled = false;
+						dom.byId('sign_in').innerHTML = "Sign Out";
 						dom.byId('abort_queue').disabled = true;
 						dom.byId('abort_queue').style.display = "none";
 						var jRes = JSON.parse(xhr2.responseText);
@@ -114,7 +126,8 @@
 							});
 							var cred = idManager.findCredential("http://www.arcgis.com/sharing/rest", jRes.user);
 							console.log(cred);
-					        new esriPortal.Portal("https://www.arcgis.com").signIn().then(
+							myPortal = new esriPortal.Portal("https://www.arcgis.com");
+							myPortal.signIn().then(
 					        		function(portalUser) {
 					        			queryPortal(portalUser);
 					        		}
@@ -142,7 +155,7 @@
 		
 		function createGallery(items) {
 			if (items.results.length > 0)
-				dom.byId('mess').innerHTML = "First found item: Title - " + items.results[0].title + ", Type - " + items.results[0].type;
+				dom.byId('mess').innerHTML = "<p>" + items.queryParams.q + "</p><p>First found item: Title - " + items.results[0].title + ", Type - " + items.results[0].type + "</P>";
 			else
 				dom.byId('mess').innerHTML = "No items found";
 		}
