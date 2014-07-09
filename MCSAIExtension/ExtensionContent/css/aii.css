@@ -830,6 +830,18 @@ margin:3px 0px 3px 0px;
 	background-position: -78px -40px;
 }
 
+.baseMap-tab{
+	background:transparent url('../images/aii-sprite.png') -2px -80px no-repeat;
+	height:42px;
+	width:38px;
+}
+.baseMap-tab-active{
+	background:transparent url('../images/aii-sprite.png') -40px -80px no-repeat;
+}
+.baseMap-tab:hover, .layerList-tab-active:hover{
+	background-position: -78px -80px;
+}
+
 #panelOpener .un	{
 	position:relative;
 	height:33px;

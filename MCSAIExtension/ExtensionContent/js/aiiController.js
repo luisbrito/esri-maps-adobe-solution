@@ -13,6 +13,7 @@ define([
 	"esri/toolbars/edit",
 	"esri/symbols/SimpleLineSymbol",
 	"esri/symbols/SimpleFillSymbol",
+	"esri/symbols/Font", "esri/symbols/TextSymbol",
 	"esri/Color",
 	"esri/graphic",
 	"esri/config", "esri/lang",
@@ -30,7 +31,7 @@ define([
 	parser, ready, dom, domClass, domConstruct, array, registry, on, esriPortal, arcgisUtils,urlUtils,
 	esriRequest,
 	SpatialReference, Extent, Point, ProjectParameters, GeometryService, Draw, event, Edit, SimpleLineSymbol, SimpleFillSymbol,
-	Color, Graphic, config, esriLang) {
+	Font, TextSymbol, Color, Graphic, config, esriLang) {
 
     var baseMapGallery, baseLayerName;
 
@@ -40,6 +41,8 @@ define([
     //var mapServerUrl = "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer";
     var portalProps = null;
     var aoiExtent = null;
+    var aoiSignX = null;
+    var aoiSignY = null;
     var oaiGraphic = null;
     var fillSymbol;
     var editTool = null;
@@ -81,6 +84,13 @@ define([
         	};
         }
 
+        var baseMapTab = dom.byId( "baseMap" );
+        if ( baseMapTab != null ) {
+        	baseMapTab.onclick = function () {
+        		switchPane( baseMapTab );
+        	};
+        }
+
         var closeServBtn = dom.byId( "closeServices_button" );
         if ( closeServBtn != null ) {
         	closeServBtn.onclick = function () {
@@ -92,6 +102,21 @@ define([
         if ( closeLayersBtn != null ) {
         	closeLayersBtn.onclick = function () {
         		hidePanels();
+        	};
+        }
+
+        var closeBaseBtn = dom.byId( "closeBase_button" );
+        if ( closeBaseBtn != null ) {
+        	closeBaseBtn.onclick = function () {
+        		hidePanels();
+        	};
+        }
+
+        var setBaseBtn = dom.byId( "map_utput_set_button" );
+        if ( setBaseBtn != null ) {
+        	setBaseBtn.onclick = function () {
+        		setSpatialReference();
+        		addSigns();
         	};
         }
 
@@ -178,8 +203,8 @@ define([
     }
 
     function onMapLoad() {
-    	layerList = new LayerList( "LayerList", dom.byId( 'layers-content' ) );
-    	layerList.addLayer( map.getLayer( "layer0" ) );
+    	/*layerList = new LayerList( "LayerList", dom.byId( 'layers-content' ) );
+    	layerList.addLayer( map.getLayer( "layer0" ) );*/
 
     	map.resize();
         var addRect = dom.byId( 'addRect' );
@@ -196,14 +221,26 @@ define([
     	oaiGraphic = new Graphic(evt.geometry, fillSymbol);
     	map.graphics.add(oaiGraphic);
     	var addRect = dom.byId( 'addRect' );
+    	var sc = map.getScale();
+    	var hh = aoiExtent.getHeight()/sc;
     	map.setExtent(ext);
+    	addSigns();
     	if (editTool == null){
     		editTool = new Edit(map);
             map.graphics.on("click", function(evt) {
                 event.stop(evt);
+            	if (aoiSignY != null){
+            		map.graphics.remove(aoiSignY);
+            		aoiSignY = null;
+            	}
+            	if (aoiSignX != null){
+            		map.graphics.remove(aoiSignX);
+            		aoiSignX = null;
+            	}
                 map.disableMapNavigation();
                 map.on("click", function(ev){
                 	editTool.deactivate();
+                	addSigns();
                 });
                 editTool.on("graphic-move-stop", function(evMove){
                 	aoiExtent = new Extent(evMove.graphic.geometry._extent);
@@ -224,6 +261,61 @@ define([
     	addRect.innerHTML = "Change AOI";
     }
     
+    function addSigns(){
+    	if (oaiGraphic == null)
+    		return;
+    	if (aoiSignY != null){
+    		map.graphics.remove(aoiSignY);
+    		aoiSignY = null;
+    	}
+    	if (aoiSignX != null){
+    		map.graphics.remove(aoiSignX);
+    		aoiSignX = null;
+    	}
+    	var corner = new Point(aoiExtent.xmin, aoiExtent.ymin, aoiExtent.spatialReference);
+    	var res = parseInt(dom.byId( 'outMap_DPI' ).value);
+    	var wInt = parseInt(dom.byId( 'outMap_width' ).value) / res;
+    	var hInt = parseInt(dom.byId( 'outMap_height' ).value)  / res;
+    	var valWidth = "w = " + wInt.toFixed(2) + "'";
+    	var valHeight = "h = " + hInt.toFixed(2) + "'";
+    	var font = new Font(
+                "12pt",
+                Font.STYLE_NORMAL, 
+                Font.VARIANT_NORMAL,
+                Font.WEIGHT_NORMAL,
+                "Helvetica"
+              );
+        var textSymbol1 = new TextSymbol(
+        		valWidth,
+                font,
+                new Color("#666633")
+              );
+        textSymbol1.setOffset(8,8);
+        textSymbol1.setAlign(TextSymbol.ALIGN_START);
+        aoiSignX = new Graphic(corner, textSymbol1);
+        map.graphics.add(aoiSignX);
+        var textSymbol2 = new TextSymbol(
+                valHeight,
+                font,
+                new Color("#666633")
+              );
+        textSymbol2.setOffset(20,30);
+        textSymbol2.setAlign(TextSymbol.ALIGN_START);
+        textSymbol2.setAngle(270);
+        aoiSignY = new Graphic(corner, textSymbol2);
+        map.graphics.add(aoiSignY);
+
+    }
+    
+    function setSpatialReference(){
+    	var sr = parseInt(dom.byId( 'basemap_SR' ).value);
+    	var oldSr = map.spatialReference.wkid;
+    	if(oldSr == sr)
+    		return;
+    	var mySr = new SpatialReference(sr);
+    	map.spatialReference = mySr;
+    }
+    
     function onAddRect(){
     	var addRect = dom.byId( 'addRect' );
     	if (addRect.innerHTML == "Define Map Extent"){
@@ -239,9 +331,17 @@ define([
     	else if (addRect.innerHTML == "Remove Map Extent"){
     		editTool.deactivate();
     		map.graphics.remove(oaiGraphic);
+        	if (aoiSignY != null){
+        		map.graphics.remove(aoiSignY);
+        		aoiSignY = null;
+        	}
+        	if (aoiSignX != null){
+        		map.graphics.remove(aoiSignX);
+        		aoiSignX = null;
+        	}
 	    	aoiExtent = null;
 	    	oaiGraphic = null;
-    		addRect.innerHTML = "Define AOI";
+    		addRect.innerHTML = "Define Map Extent";
         	map.enableMapNavigation();
     	}
     }
