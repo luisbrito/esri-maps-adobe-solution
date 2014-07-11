@@ -109,4 +109,15 @@ $._ext_ILST={
 			doc.XMPString = ser;
 			return '{"error" : "No"}';
 	   },
+	    
+	   getUnits: function()
+	   {
+	   		var un = null;
+	   		if (app.documents.length == 0){
+	   			un = app.getPresetSettings("Print").units;
+	   		}
+	   		else
+	   			un = app.activeDocument.rulerUnits;
+	   		return un;
+	   },
 	};

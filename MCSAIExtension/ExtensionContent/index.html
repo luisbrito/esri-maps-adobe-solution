@@ -111,12 +111,19 @@
 									<option value="topo">Topological</option>
 									<option value="image">Raster</option>
 							</select>
+							<p><b>Map scale:</b><br>
+							<select id="baseMap_scale" style="height:30px; width:90%">
+									<option value="250000">1:250,000</option>
+									<option value="100000">1:100,000</option>
+									<option value="50000">1:50,000</option>
+									<option value="25000">1:25,000</option>
+							</select>
+							<p>
+							<div>
+							<span id = "document_units"><b>Document units:</b> Points</b></span>
+							</div>
 							<p><b>Output map resolution (dpi):</b><br>
-							<input type="number" id="outMap_DPI" value = "300">
-							<p><b>Output map height (pixels):</b><br>
-							<input type="number" id="outMap_height" value = "1024">
-							<p><b>Output map width (pixels):</b><br>
-							<input type="number" id="outMap_width" value = "1280"><br><br>
+							<input type="number" id="outMap_DPI" value = "300"><br>
 							<button id="map_utput_set_button">Set</button>
 						</div>
 					</div>

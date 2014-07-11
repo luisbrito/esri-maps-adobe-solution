@@ -75,3 +75,25 @@
 		xhr.send( null );
 		console.log( "Sent" );
 	}
+	
+	
+	function myQqq()
+	{
+        var inter = new CSInterface();
+        var newScript = '$._ext_ILST.getUnits()';
+        inter.evalScript( newScript, function ( pp ) {
+/*        	var arr = pp.split(".");
+        	if ((arr[1] == "Centimeters") ||
+        			(arr[1] == "Inches") ||
+        			(arr[1] == "Millimeters") ||
+        			(arr[1] == "Picas") ||
+        			(arr[1] == "Points"))
+        		outUnits = arr[1];*/
+        	console.log(pp);
+        	//checkUp = pp;
+        	/*var unitDiv = dom.byId( "document_units");
+        	if (unitDiv != null)
+        		unitDiv.innerHTML("<b>Document units:</b> " + outUnits);*/
+        });
+		
+	}

@@ -47,6 +47,7 @@ define([
     var fillSymbol;
     var editTool = null;
     var tb = null;
+    var outUnits = "Pixels";
 
     var portal, portalUrl, groupGrid, lastStyle, mapInfo;
     function startup() {
@@ -68,7 +69,8 @@ define([
             		}
             );
         });
-
+        
+        
 
         var serviceTab = dom.byId( "serviceList" );
         if ( serviceTab != null ) {
@@ -116,6 +118,7 @@ define([
         if ( setBaseBtn != null ) {
         	setBaseBtn.onclick = function () {
         		setSpatialReference();
+        		//setScale();
         		addSigns();
         	};
         }
@@ -203,14 +206,30 @@ define([
     }
 
     function onMapLoad() {
-    	/*layerList = new LayerList( "LayerList", dom.byId( 'layers-content' ) );
-    	layerList.addLayer( map.getLayer( "layer0" ) );*/
+    	layerList = new LayerList( "LayerList", dom.byId( 'layers-content' ) );
+    	/*layerList.addLayer( map.getLayer( "layer0" ) );*/
 
     	map.resize();
         var addRect = dom.byId( 'addRect' );
         if ( addRect != null ) {
         	addRect.onclick = onAddRect;
         }
+        var inter = new CSInterface();
+        var newScript = '$._ext_ILST.getUnits()';
+        inter.evalScript( newScript, function ( pp ) {
+        	var arr = pp.split(".");
+        	if ((arr[1] == "Centimeters") ||
+        			(arr[1] == "Inches") ||
+        			(arr[1] == "Millimeters") ||
+        			(arr[1] == "Picas") ||
+        			(arr[1] == "Points"))
+        		outUnits = arr[1];
+        	var unitDiv = dom.byId( "document_units");
+        	if (unitDiv != null)
+        	{
+        		unitDiv.innerHTML = "<b>Document units:</b> " + outUnits;
+        	}
+        });
     }
     
     function endGraphic(evt){
@@ -274,12 +293,43 @@ define([
     	}
     	var corner = new Point(aoiExtent.xmin, aoiExtent.ymin, aoiExtent.spatialReference);
     	var res = parseInt(dom.byId( 'outMap_DPI' ).value);
-    	var wInt = parseInt(dom.byId( 'outMap_width' ).value) / res;
-    	var hInt = parseInt(dom.byId( 'outMap_height' ).value)  / res;
-    	var valWidth = "w = " + wInt.toFixed(2) + "'";
-    	var valHeight = "h = " + hInt.toFixed(2) + "'";
+    	var sc = parseInt(dom.byId( 'baseMap_scale' ).value);
+    	var wInt = aoiExtent.getWidth()/sc;
+    	var hInt = aoiExtent.getHeight()/sc;
+    	var mes = " px";
+    	if (outUnits == "Centimeters"){
+    		wInt *= 100;
+    		hInt *= 100;
+    		mes = " cm";
+    	}
+    	else if (outUnits == "Inches"){
+    		wInt *= 39.3700787;
+    		hInt *= 39.3700787;
+    		mes = "'";
+    	}
+    	else if (outUnits == "Millimeters"){
+    		wInt *= 1000;
+    		hInt *= 1000;
+    		mes = " mm";
+    	}
+    	else if (outUnits == "Picas"){
+    		wInt *= (39.3700787*6);
+    		hInt *= (39.3700787*6);    		
+    		mes = " picas";
+    	}
+    	else if (outUnits == "Points"){
+    		wInt *= (39.3700787*72);
+    		hInt *= (39.3700787*72);    		
+    		mes = " pts";
+    	}
+    	else if (outUnits == "Pixels"){
+    		wInt *= (39.3700787*res);
+    		hInt *= (39.3700787*res);    		
+    	}
+    	var valWidth = "w = " + wInt.toFixed(2) + " " + mes;
+    	var valHeight = "h = " + hInt.toFixed(2) + " " + mes;
     	var font = new Font(
-                "12pt",
+                "10pt",
                 Font.STYLE_NORMAL, 
                 Font.VARIANT_NORMAL,
                 Font.WEIGHT_NORMAL,
@@ -288,7 +338,7 @@ define([
         var textSymbol1 = new TextSymbol(
         		valWidth,
                 font,
-                new Color("#666633")
+                new Color("white")
               );
         textSymbol1.setOffset(8,8);
         textSymbol1.setAlign(TextSymbol.ALIGN_START);
@@ -297,7 +347,7 @@ define([
         var textSymbol2 = new TextSymbol(
                 valHeight,
                 font,
-                new Color("#666633")
+                new Color("white")
               );
         textSymbol2.setOffset(20,30);
         textSymbol2.setAlign(TextSymbol.ALIGN_START);
@@ -314,6 +364,11 @@ define([
     		return;
     	var mySr = new SpatialReference(sr);
     	map.spatialReference = mySr;
+    }
+    
+    function setScale(){
+    	var sc = parseInt(dom.byId( 'baseMap_scale' ).value);
+    	map.setScale(sc);
     }
     
     function onAddRect(){
@@ -415,8 +470,16 @@ define([
     	} );
 
     	// Export options. I chose these just from example
-    	webMap.exportOptions.dpi = "300",
-    	webMap.exportOptions.outputSize = ["1280", "1024"];
+    	var res = parseInt(dom.byId( 'outMap_DPI' ).value);
+    	var sc = parseInt(dom.byId( 'baseMap_scale' ).value);
+    	var wInt = map.extent.getWidth()/sc;
+    	var hInt = map.extent.getHeight()/sc;
+		wInt *= (39.3700787*res);
+		hInt *= (39.3700787*res);    		
+    	var valWidth = wInt.toFixed(0);
+    	var valHeight = hInt.toFixed(0);
+    	webMap.exportOptions.dpi = dom.byId( 'outMap_DPI' ).value;
+    	webMap.exportOptions.outputSize = [valWidth, valHeight];
 
     	var strMap = JSON.stringify( webMap );
     	// REST request to GP tool for exporting web maps
