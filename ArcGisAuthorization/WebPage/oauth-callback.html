@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script src="./CSInterface-4.0.0.js"></script>
   <title>OAuth Popup Callback</title>
   
   <style>
@@ -17,57 +18,36 @@
 
   <script>
     function initialize() {
-      //console.log("oauth callback");
-      
-	  var rest = window.location.href;
-	  var temp = ".html#";
-	  var n = rest.search(temp);
-	  if (n < 0)
-	  {
-		var errMess = document.getElementById("er_mess");
-		errMess.innerHTML = "Authorizing should not start from menu";
-		return;
-	  }
-	  n += temp.length;
-	  var len = rest.length - n;
-	  var str = rest.substr(n, len);
-	  if (str.length == 0)
-	  {
-		var errMess = document.getElementById("er_mess");
-		errMess.innerHTML = "Authorizing should not start from menu";
-		return;
-	  }
-	  if (window.sessionStorage.length == 0)
-	  {
-		window.sessionStorage.setItem("id", str);
-		window.location = "https://www.arcgis.com/sharing/oauth2/authorize?client_id=ytCWt98Db64eHWd7&response_type=token&redirect_uri=http://pod.arcgis.com/oauth/oauth-callback.html";
+		console.log("oauth callback");
+		if (window.__adobe_cep__ == null)
+		{
+			var errMess = document.getElementById("er_mess");
+			errMess.innerHTML = "Authorizing should not start from menu";
+			return;
+		}
+		var rest = window.location.href;
+		var temp = ".html#";
+		var n = rest.search(temp);
+		if (n < 0)
+		{
+			window.location = 	"https://www.arcgis.com/sharing/oauth2/authorize?client_id=ytCWt98Db64eHWd7&response_type=token&redirect_uri=http://localhost/AH/oauth-callback.html";
 		}
 		else
 		{
-			var ii = window.sessionStorage.getItem("id");
-			var xhr = new XMLHttpRequest();
-			var addr = "http://pod.arcgis.com:8080/AiAuthorization4tomcat/AiAuthTest?id=";
-			addr += ii;
-			addr += "&action=refresh&";
-			addr += str;
-			xhr.open("GET", addr, true);
-			xhr.onreadystatechange = function() {	
-				if (xhr.readyState == 4)
-				{
-					if (xhr.status == 200)
-					{
-						window.__adobe_cep__.closeExtension();
-					}
-				}
-			};
-			xhr.send(null);
-			window.sessionStorage.clear();
+			n += temp.length;
+			var len = rest.length - n;
+			var str = rest.substr(n, len);
+			var event = new CSEvent("cep.sender.event.message", "APPLICATION");
+			event.data = str;
+			window.__adobe_cep__.dispatchEvent(event);
+			window.__adobe_cep__.closeExtension();
 		}
+		
     }
   </script>
 </head>
 
-<body onload="initialize();">
+<body onload="initialize()">
 Redirecting to Sing in page.
 <div id="er_mess">
 </div>
