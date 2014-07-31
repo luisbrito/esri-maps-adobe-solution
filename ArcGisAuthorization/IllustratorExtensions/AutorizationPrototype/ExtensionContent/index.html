@@ -82,7 +82,7 @@
 
 		function startDialog()
 		{
-			mYInst.addEventListener("cep.sender.event.message", function (event){
+			mYInst.addEventListener("esri.authorizing.event.message", function (event){
 				var params = event.data.split("&");
 				if (params == null)
 					dom.byId('mess').innerHTML = "Authorization failed";

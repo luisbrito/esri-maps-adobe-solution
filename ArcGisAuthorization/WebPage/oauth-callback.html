@@ -37,7 +37,7 @@
 			n += temp.length;
 			var len = rest.length - n;
 			var str = rest.substr(n, len);
-			var event = new CSEvent("cep.sender.event.message", "APPLICATION");
+			var event = new CSEvent("esri.authorizing.event.message", "APPLICATION");
 			event.data = str;
 			window.__adobe_cep__.dispatchEvent(event);
 			window.__adobe_cep__.closeExtension();
