@@ -7,7 +7,7 @@
 <script src="http://js.arcgis.com/3.9compact/"></script>
 <script>
 	var mYInst = null, id = "", tempPath = "", myPortal;
-	var serviceURL = "http://pod.arcgis.com:8080/AiAuthorization4tomcat/AiAuthTest?id=";
+	var token = "", user_name = "", exp_in = "";
 	require([
 	         "esri/arcgis/Portal",
 	         "esri/IdentityManager",
@@ -18,7 +18,6 @@
 		ready(function() {
 			mYInst =  new CSInterface();
 			on(dom.byId('sign_in'), 'click', logIn);
-			on(dom.byId('abort_queue'), 'click', abortReq);
 			dom.byId('sign_in').disabled = false;
 		});
 		
@@ -34,114 +33,34 @@
 				dom.byId('mess').innerHTML = "";
 				return;
 			}
-			id = generateUUID();
-			tempPath = mYInst.getSystemPath(SystemPath.USER_DATA);
-			tempPath += "/ArcGISillustrator.uid";
-			var res = window.cep.fs.writeFile(tempPath, id);
-			console.log(res);
-			var xhr = new XMLHttpRequest();
-			var addr = serviceURL;
-			addr += id;
-			addr += "&action=add";
-			xhr.open("GET", addr, true);
-			xhr.onreadystatechange = function() {
-				if (xhr.readyState == 4)
-				{
-					if (xhr.status == 200)
-					{
-						startDialog();
-					}
-					else
-						abortReq();
-				}
-			};
-			xhr.send(null);
-			dom.byId('mess').innerHTML = "Start request";
 			dom.byId('sign_in').disabled = true;
-		}
-		
-		function generateUUID() {
-		    var d = new Date().getTime();
-		    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		        var r = (d + Math.random()*16)%16 | 0;
-		        d = Math.floor(d/16);
-		        return (c=='x' ? r : (r&0x7|0x8)).toString(16);
-		    });
-		    return uuid;
-		}
-
-		function abortReq()
-		{
-			window.cep.fs.deleteFile(tempPath);
-			tempPath = "";
-			var xhr3 = new XMLHttpRequest();
-			var addr = serviceURL;
-			addr += id;
-			addr += "&action=abort";
-			xhr3.open("GET", addr, true);
-			xhr3.onreadystatechange = function() {
-				if (xhr3.readyState == 4)
-				{
-					id = "";
-					dom.byId('sign_in').disabled = false;
-					dom.byId('abort_queue').disabled = true;
-					dom.byId('abort_queue').style.display = "none";
-					dom.byId('mess').innerHTML = "";
-				}
-			};
-			xhr3.send(null);	
+			dom.byId('mess').innerHTML = "Start request";
+			startDialog();
 		}
 
 		function getResult()
 		{
-			window.cep.fs.deleteFile(tempPath);
-			tempPath = "";
-			var xhr2 = new XMLHttpRequest();
-			var addr = serviceURL;
-			addr += id;
-			addr += "&action=get";
-			xhr2.open("GET", addr, true);
-			xhr2.onreadystatechange = function() {
-				if (xhr2.readyState == 4)
-				{
-					if (xhr2.status == 200)
-					{
-						id = "";
-						dom.byId('sign_in').disabled = false;
-						dom.byId('sign_in').innerHTML = "Sign Out";
-						dom.byId('abort_queue').disabled = true;
-						dom.byId('abort_queue').style.display = "none";
-						var jRes = JSON.parse(xhr2.responseText);
-						if (jRes.error != "No")
-							dom.byId('mess').innerHTML = "Error: " + jRes.error;
-						else
-						{
-							//dom.byId('mess').innerHTML = "Token: " + jRes.token;
-							idManager.registerToken({
-								server: "http://www.arcgis.com/sharing/rest",
-								userId: jRes.user,
-								token: jRes.token,
-								expires: jRes.expires_in,
-								ssl: false
-							});
-							var cred = idManager.findCredential("http://www.arcgis.com/sharing/rest", jRes.user);
-							console.log(cred);
-							myPortal = new esriPortal.Portal("https://www.arcgis.com");
-							myPortal.signIn().then(
-					        		function(portalUser) {
-					        			queryPortal(portalUser);
-					        		}
-					        	).otherwise(
-					        			function(error) {
-					        				console.log("Error occurred while signing in: ", error);
-					        			}
-					        	);
-						}
-					}
-				}
-			};
-			xhr2.send(null);	
+			idManager.registerToken({
+				server: "http://www.arcgis.com/sharing/rest",
+				userId: user_name,
+				token: token,
+				expires: exp_in,
+				ssl: false
+			});
+			var cred = idManager.findCredential("http://www.arcgis.com/sharing/rest", user_name);
+			console.log(cred);
+	        new esriPortal.Portal("https://www.arcgis.com").signIn().then(
+				function(portalUser) {
+					queryPortal(portalUser);
+	    		}
+	        	).otherwise(
+	        			function(error) {
+	        				dom.byId('sign_in').disabled = false;
+	        				console.log("Error occurred while signing in: ", error);
+	        			}
+        	);
 		}
+		
 		function queryPortal(portalUser) {
 	        var portal = portalUser.portal;
 	        var queryParams = {
@@ -158,49 +77,63 @@
 				dom.byId('mess').innerHTML = "<p>" + items.queryParams.q + "</p><p>First found item: Title - " + items.results[0].title + ", Type - " + items.results[0].type + "</P>";
 			else
 				dom.byId('mess').innerHTML = "No items found";
-		}
-
-		function repeat()
-		{
-			chekRes();
-		}
-
-		function chekRes()
-		{
-			var xhr1 = new XMLHttpRequest();
-			var addr = serviceURL;
-			addr += id;
-			addr += "&action=check";
-			xhr1.open("GET", addr, true);
-			xhr1.onreadystatechange = function() {
-				if (xhr1.readyState == 4)
-				{
-					if (xhr1.status == 200)
-					{
-						var res = JSON.parse(xhr1.responseText);
-						if (res.error != "No")
-						{
-							abortReq();
-							return;
-						}
-						if (res.state == "ready")
-							getResult();
-						else
-							setTimeout(repeat, 2000);
-					}
-					else
-						abortReq();
-				}
-			};
-			xhr1.send(null);	
+			dom.byId('sign_in').innerHTML = "Sign Out";
 		}
 
 		function startDialog()
 		{
-			dom.byId('abort_queue').disabled = false;
-			dom.byId('abort_queue').style.display = "block";
+			mYInst.addEventListener("cep.sender.event.message", function (event){
+				var params = event.data.split("&");
+				if (params == null)
+					dom.byId('mess').innerHTML = "Authorization failed";
+				else if (params.length < 2)
+					dom.byId('mess').innerHTML = "Authorization failed";
+				else {
+					var items = params[0].split("=");
+					if (items.length < 2)
+						dom.byId('mess').innerHTML = "Authorization failed";
+					else if (items[0] == "error"){
+						var err_descr = params[1].split("=");
+						if (err_descr < 2)
+							dom.byId('mess').innerHTML = "Authorization failed";
+						else if (err_descr[0] != "error_description")
+							dom.byId('mess').innerHTML = "Authorization failed";
+						else
+							dom.byId('mess').innerHTML = decodeURI(err_descr[1]);
+					}
+					else {
+						count = 0;
+						for (i = 0; i < params.length; i++){
+							var res = params[i].split("=");
+							if (res.length != 2)
+								dom.byId('mess').innerHTML = "Authorization failed";
+							else {
+								switch (res[0]) {
+								case "access_token":
+									token = res[1];
+									count++;
+									break;
+								case "expires_in":
+									exp_in = res[1];
+									count++;
+									break;
+								case "username":
+									user_name = res[1];
+									count++;
+									break;
+								}
+							}
+						}
+						if (count != 3)
+							dom.byId('mess').innerHTML = "Authorization failed";
+						else{
+							getResult();
+						}
+					}
+				}
+				dom.byId('sign_in').disabled = false;
+			});
 			mYInst.requestOpenExtension("com.example.AutorizationPrototype.dialog", "");
-			setTimeout(repeat, 1000);
 		}
 	});
 </script>
@@ -211,7 +144,6 @@
 <body>
 <div id="content">
 	<button class="default" id="sign_in" disabled="true">Sign in</button>		
-	<button class="default" id="abort_queue" disabled="true" style="display: none">Abort</button>		
 	<div id="mess">
 	</div>
 </div>
