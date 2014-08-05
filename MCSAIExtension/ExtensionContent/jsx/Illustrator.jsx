@@ -1,4 +1,4 @@
-$._ext_ILST={
+﻿$._ext_ILST={
 	    run : function(path) {
 	        var doc /*= app.activeDocument*/;
 	        if (app.documents.length > 0)
@@ -54,7 +54,7 @@ $._ext_ILST={
 			// Check if needed properties are in metadata
 			var pr = XMPMeta.registerNamespace ("http://ArcGIS.com/", "arcGIS"); //Register the prefix with name space
 			var isSr = myXmp.doesPropertyExist( "http://ArcGIS.com/", "SpatialReference");
-			var isId = myXmp.doesPropertyExist( "http://ArcGIS.com/", "BaseMapID");
+			var isId = myXmp.doesPropertyExist( "http://ArcGIS.com/", "BaseMap");
 			if ((!isSr) && (!isId))
 				return '{"error" : "No ArcGIS metadata"}';
 			
@@ -69,8 +69,8 @@ $._ext_ILST={
 			{
 				if (isSr)
 					ret += ',';
-				var mId = myXmp.getProperty( "http://ArcGIS.com/", "BaseMapID");
-				ret += ('"BaseMapID" : "' + mId + '"');
+				var mId = myXmp.getProperty( "http://ArcGIS.com/", "BaseMap");
+				ret += ('"BaseMap" : "' + mId + '"');
 			}
 			ret += '}}';
 		    return ret;

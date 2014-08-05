@@ -123,6 +123,13 @@ define([
         	};
         }
 
+        var refreshBaseBtn = dom.byId( "map_doc_refresh_button" );
+        if ( refreshBaseBtn != null ) {
+        	refreshBaseBtn.onclick = function () {
+        		refreshDocProps();
+        	};
+        }
+
         var addRect = dom.byId( 'addRect' );
         if ( addRect != null ) {
         	addRect.innerHTML = "Define Map Extent";
@@ -204,16 +211,8 @@ define([
            	};
         }
     }
-
-    function onMapLoad() {
-    	layerList = new LayerList( "LayerList", dom.byId( 'layers-content' ) );
-    	/*layerList.addLayer( map.getLayer( "layer0" ) );*/
-
-    	map.resize();
-        var addRect = dom.byId( 'addRect' );
-        if ( addRect != null ) {
-        	addRect.onclick = onAddRect;
-        }
+    
+    function refreshDocProps(){
         var inter = new CSInterface();
         var newScript = '$._ext_ILST.getUnits()';
         inter.evalScript( newScript, function ( pp ) {
@@ -230,6 +229,45 @@ define([
         		unitDiv.innerHTML = "<b>Document units:</b> " + outUnits;
         	}
         });
+        
+        newScript = '$._ext_ILST.getArcGISmetadata()';
+        inter.evalScript( newScript, function ( pp ) {
+        	var objRet = JSON.parse(pp);
+        	if (objRet.error == "No"){
+        		var sfID = parseInt(objRet.metadata.SpatialReference);
+        		var docSr = new SpatialReference(sfID);
+        		if (!map.spatialReference.equals(docSr))
+        			map.spatialReference = docSr;
+        	}
+        });
+    }
+
+    function onMapLoad() {
+    	layerList = new LayerList( "LayerList", dom.byId( 'layers-content' ) );
+    	/*layerList.addLayer( map.getLayer( "layer0" ) );*/
+
+    	map.resize();
+        var addRect = dom.byId( 'addRect' );
+        if ( addRect != null ) {
+        	addRect.onclick = onAddRect;
+        }
+        refreshDocProps();
+        /*var inter = new CSInterface();
+        var newScript = '$._ext_ILST.getUnits()';
+        inter.evalScript( newScript, function ( pp ) {
+        	var arr = pp.split(".");
+        	if ((arr[1] == "Centimeters") ||
+        			(arr[1] == "Inches") ||
+        			(arr[1] == "Millimeters") ||
+        			(arr[1] == "Picas") ||
+        			(arr[1] == "Points"))
+        		outUnits = arr[1];
+        	var unitDiv = dom.byId( "document_units");
+        	if (unitDiv != null)
+        	{
+        		unitDiv.innerHTML = "<b>Document units:</b> " + outUnits;
+        	}
+        });*/
     }
     
     function endGraphic(evt){
@@ -240,8 +278,6 @@ define([
     	oaiGraphic = new Graphic(evt.geometry, fillSymbol);
     	map.graphics.add(oaiGraphic);
     	var addRect = dom.byId( 'addRect' );
-    	var sc = map.getScale();
-    	var hh = aoiExtent.getHeight()/sc;
     	map.setExtent(ext);
     	addSigns();
     	if (editTool == null){
