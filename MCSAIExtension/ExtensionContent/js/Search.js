@@ -57,6 +57,11 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Too
 		dom.byId( 'searchStatus' ).innerHTML = "Searching...";
 		// The URL of search service. I tried to use appropriate object from ArcGIS for JavaScript. But this son of a bitch does not wanna sort by relevance  
 		var path = 'http://www.arcgis.com/sharing/rest/search?q=';
+		var len = parseInt(dom.byId( 'outList_Size' ).value);
+		if (len < 10)
+			len = 10;
+		if (len > 100)
+			len = 100;
 		var keyword = dom.byId( 'searchText' ).value;
 
 		if ( keyword == currentKeyword ) {
@@ -68,7 +73,7 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Too
 		}
 
 		path += keyword;
-		path += '+type:%22feature%20service%22&f=pjson';
+		path += '+type:%22feature%20service%22&num=' + len + '&f=pjson';
 
 
 		// Let's go to search

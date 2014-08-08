@@ -94,22 +94,19 @@
 				</div>
 			</div>
 			<div id="baseMapContent" class="panel" style="display:none;">
-				<h1 id="h1">The Output Map Properties
+				<h1 id="h1">Options
 				</h1>
 				<div id="closeBase_button" class="close-button"></div>
 
 				<div id="BaseStack" data-dojo-type="dijit/layout/StackContainer" style="display: block; height: 90%; width: 100%; overflow: auto;">
 					<div id="base-content" style="height:90%;">
 						<div>
+							<p><b>Size of list of found services:</b><br>
+							<input type="number" id="outList_Size" value = "10"><br><br>
 							<p><b>Base map spatial reference:</b><br>
 							<select id="basemap_SR" style="height:30px; width:90%">
 								<option value="102100">WGS 1984 Web Mercator Auxiliary Sphere</option>
 								<option value="102113">WGS 1984 Web Mercator</option>
-							</select>
-							<p><b>Base map type:</b><br>
-							<select id="baseMap_type" style="height:30px; width:90%">
-									<option value="topo">Topological</option>
-									<option value="image">Raster</option>
 							</select>
 							<p><b>Map scale:</b><br>
 							<select id="baseMap_scale" style="height:30px; width:90%">
