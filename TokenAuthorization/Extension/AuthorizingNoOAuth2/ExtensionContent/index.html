@@ -1,0 +1,163 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<script>
+	var dojoConfig = {
+		async : true,
+		};
+</script>
+<script src="./lib/CSInterface-4.0.0.js"></script>
+<script src="http://js.arcgis.com/3.10/"></script>
+<script type=”text/javascript”>window.nodeRequire=window.require && window.require=undefined</script>
+<script>
+	var mYInst = null, id = "", tempPath = "", myPortal;
+	var token = "", user_name = "", exp_in = "";
+	require([
+	         "esri/arcgis/Portal",
+	         "esri/IdentityManager",
+	         "dojo/ready",
+	         "dojo/dom",
+	         "dojo/on"
+	], function(esriPortal, idManager, ready, dom, on) {
+		ready(function() {
+			mYInst =  new CSInterface();
+			on(dom.byId('sign_in'), 'click', logIn);
+			dom.byId('sign_in').disabled = false;
+		});
+		
+		function logIn() {
+			if (dom.byId('sign_in').innerHTML == "Sign Out")
+			{
+				dom.byId('sign_in').innerHTML = "Sign in";
+				idManager.destroyCredentials();
+				dom.byId('mess').innerHTML = "";
+				window.location.reload();
+				return;
+			}
+			dom.byId('sign_in').disabled = true;
+			dom.byId('mess').innerHTML = "Start request";
+			startDialog();
+		}
+
+		function getResult()
+		{
+			idManager.registerToken({
+				server: "http://www.arcgis.com/sharing/rest",
+				userId: user_name,
+				token: token,
+				expires: exp_in,
+				ssl: false
+			});
+			var cred = idManager.findCredential("http://www.arcgis.com/sharing/rest", user_name);
+			console.log(cred);
+	        new esriPortal.Portal("https://www.arcgis.com").signIn().then(
+				function(portalUser) {
+					queryPortal(portalUser);
+	    		}
+	        	).otherwise(
+	        			function(error) {
+	        				dom.byId('sign_in').disabled = false;
+	        				console.log("Error occurred while signing in: ", error);
+	        			}
+        	);
+		}
+		
+		function queryPortal(portalUser) {
+	        var portal = portalUser.portal;
+	        var queryParams = {
+	          q:          "owner:" + portalUser.username,
+	          sortField:  "numViews",
+	          sortOrder:  "desc",
+	          num:        5
+	        };
+	        portal.queryItems(queryParams).then(createGallery);
+		}
+		
+		function createGallery(items) {
+			if (items.results.length > 0)
+				dom.byId('mess').innerHTML = "<p>" + items.queryParams.q + "</p><p>First found item: Title - " + items.results[0].title + ", Type - " + items.results[0].type + "</P>";
+			else
+				dom.byId('mess').innerHTML = "No items found";
+			dom.byId('sign_in').innerHTML = "Sign Out";
+		}
+		
+		function dialogListener(event) {
+			mYInst.removeEventListener("esri.authorizing.event.message", dialogListener);
+			var needReload = true;
+			var params = event.data.split("&");
+			if (params == null)
+				dom.byId('mess').innerHTML = "Authorization failed";
+			else if (params.length < 2)
+				dom.byId('mess').innerHTML = "Authorization failed";
+			else {
+				var items = params[0].split("=");
+				if (items.length < 2)
+					dom.byId('mess').innerHTML = "Authorization failed";
+				else if (items[0] == "error"){
+					var err_descr = params[1].split("=");
+					if (err_descr < 2)
+						dom.byId('mess').innerHTML = "Authorization failed";
+					else if (err_descr[0] != "error_description")
+						dom.byId('mess').innerHTML = "Authorization failed";
+					else
+						dom.byId('mess').innerHTML = decodeURI(err_descr[1]);
+				}
+				else {
+					count = 0;
+					for (i = 0; i < params.length; i++){
+						var res = params[i].split("=");
+						if (res.length != 2)
+							dom.byId('mess').innerHTML = "Authorization failed";
+						else {
+							switch (res[0]) {
+							case "access_token":
+								token = res[1];
+								count++;
+								break;
+							case "expires_in":
+								exp_in = res[1];
+								count++;
+								break;
+							case "username":
+								user_name = res[1];
+								count++;
+								break;
+							}
+						}
+					}
+					if (count != 3)
+						dom.byId('mess').innerHTML = "Authorization failed";
+					else{
+						needReload = false;
+						getResult();
+					}
+				}
+			}
+			if (needReload)
+				window.location.reload();
+			else
+				dom.byId('sign_in').disabled = false;
+		}
+
+		function startDialog()
+		{
+			mYInst.addEventListener("esri.authorizing.event.message", dialogListener);
+			mYInst.requestOpenExtension("com.esri.Autorization.dialog", "");
+		}
+	});
+</script>
+
+<title>AutorizationPrototype</title>
+</head>
+
+<body>
+<div id="content">
+	<button class="default" id="sign_in" disabled="true">Sign in</button>		
+	<div id="mess">
+	</div>
+</div>
+</body>
+
+</html>

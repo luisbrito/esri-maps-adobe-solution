@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>Accessing secure ArcGIS Server services</title>
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/dojo/dijit/themes/tundra/tundra.css">
+  <link rel="stylesheet" href="http://js.arcgis.com/3.10/js/esri/css/esri.css">
+	<script>
+		var dojoConfig = {
+			async : true,
+			};
+	</script>
+	<script src="./CSInterface-4.0.0.js"></script>
+	<script src="http://js.arcgis.com/3.10/"></script>
+  <script>
+    require([
+      "esri/IdentityManager",
+	  "dojo/_base/unload"
+	],
+      function (
+	  IdentityManager, baseUnload
+	){
+		var isSend = false;
+		baseUnload.addOnUnload(window, function(){
+				//IdentityManager.destroyCredentials();
+				if (!isSend){
+					var err = "error=error&error_description=ABBORTED";
+					var event = new CSEvent("esri.authorizing.event.message", "APPLICATION");
+					event.data = err;
+					window.__adobe_cep__.dispatchEvent(event);
+				}
+		});
+		IdentityManager.destroyCredentials();
+		IdentityManager.getCredential("http://www.arcgis.com/sharing/rest").then( function() {
+				isSend = true;
+				var cred = IdentityManager.findCredential("http://www.arcgis.com/sharing/rest");
+				var mess = "access_token=" + cred.token+"&expires_in=" + cred.expires + "&username=" + cred.userId;
+				var event = new CSEvent("esri.authorizing.event.message", "APPLICATION");
+				event.data = mess;
+				window.__adobe_cep__.dispatchEvent(event);
+				window.__adobe_cep__.closeExtension();
+			}
+		).otherwise(function (error) {
+				isSend = true;
+				var err = "error=error&error_description=" + error.message;
+				var event = new CSEvent("esri.authorizing.event.message", "APPLICATION");
+				event.data = err;
+				window.__adobe_cep__.dispatchEvent(event);
+				window.__adobe_cep__.closeExtension();
+			}
+		);
+	});
+  </script>
+
+</head>
+
+<body>
+
+</body>
+</html>
