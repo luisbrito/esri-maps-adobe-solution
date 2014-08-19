@@ -57,7 +57,7 @@ define([
         //dom.byId("h_layers").innerHTML = Headers.layers;
         on(portal, 'ready', function (p) {
             dom.byId('findResults').disabled = false;
-            on(dom.byId('findResults'), 'click', SearchTool.findFeatureServices);
+            on(dom.byId('findResults'), 'click', SearchTool.findFeatureServices(0));
             var reqPath = portalUrl + "/sharing/rest/portals/self?f=json";
             partalPropsReq = esriRequest({url:reqPath, handleAs:"json", callbackParamName:"callback"});
             partalPropsReq.then(
@@ -329,7 +329,18 @@ define([
     	}
     	var corner = new Point(aoiExtent.xmin, aoiExtent.ymin, aoiExtent.spatialReference);
     	var res = parseInt(dom.byId( 'outMap_DPI' ).value);
-    	var sc = parseInt(dom.byId( 'baseMap_scale' ).value);
+    	var sc = 0;
+    	var scStr = dom.byId( 'baseMap_scale' ).value;
+    	if (scStr == "From base map")
+    		sc = map.getScale();
+    	else{
+	    	var arrSc = scStr.split(",");
+	    	var ssc = "";
+	    	for (var i = 0; i < arrSc.length; i++){
+	    		ssc += arrSc[i];
+	    	}
+	    	sc = parseInt(ssc);
+    	}
     	var wInt = aoiExtent.getWidth()/sc;
     	var hInt = aoiExtent.getHeight()/sc;
     	var mes = " px";
@@ -507,7 +518,18 @@ define([
 
     	// Export options. I chose these just from example
     	var res = parseInt(dom.byId( 'outMap_DPI' ).value);
-    	var sc = parseInt(dom.byId( 'baseMap_scale' ).value);
+    	var sc = 0;
+    	var scStr = dom.byId( 'baseMap_scale' ).value;
+    	if (scStr == "From base map")
+    		sc = map.getScale();
+    	else{
+	    	var arrSc = scStr.split(",");
+	    	var ssc = "";
+	    	for (var i = 0; i < arrSc.length; i++){
+	    		ssc += arrSc[i];
+	    	}
+	    	sc = parseInt(ssc);
+    	}
     	var wInt = map.extent.getWidth()/sc;
     	var hInt = map.extent.getHeight()/sc;
 		wInt *= (39.3700787*res);
@@ -536,7 +558,7 @@ define([
 			function ( response ) {
 				// success request
 				dom.byId( 'downloadStatus' ).innerHTML = '';
-				var sc = map.getScale();
+				//var sc = map.getScale();
 				var bId = map.basemapLayerIds[0];
 				var lar = map.getLayer(bId);
 				var srId = map.spatialReference.wkid;
@@ -551,6 +573,14 @@ define([
 			} );
 
     }
+
+    updateResultsPage = function(next) {
+        if (next) {
+        	SearchTool.findFeatureServices(1);
+        }
+        else
+        	SearchTool.findFeatureServices(-1);
+    };
 
     return { startup: startup };
 });

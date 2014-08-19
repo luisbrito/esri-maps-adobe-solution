@@ -69,11 +69,21 @@
 
 			</div>
 			<div id="serviceListContent" class="panel" style="display:none;">
-				<h1 id="h_layers">Map Layers
+				<h1 id="h_layers">Found Layers
 				</h1>
 				<div id="closeServices_button" class="close-button"></div>
+				<div id="upSection" style="position:absolute; height:30px; top:48px;">
+					<label for="outList_Size" style="font-family: 'Arial';font-size: 12px; ">Found layers list size</label>
+					<input  type="number" id="outList_Size" value = "10">
+				</div>
+				<div id="upSectionButtons" style="position:absolute; top:75px;width:100%">
+					<div id="prev-next" style="background-color: #e5e0e0; width:257px; vertical-align:middle;" >
+                        <a href='#' id='prevItemsLink' title='Previous results' onclick="updateResultsPage(false)" style="position:absolute; width:60px;display:none">&lsaquo;&lsaquo;Previous</a>
+					    <a href='#' id='nextItemsLink' style='position:absolute;left:215px;display:none' title='Next results' onclick="updateResultsPage(true)">Next&rsaquo;&rsaquo;</a>
+                    </div>
+				</div>
 				
-				<div id="servicesStack" data-dojo-type="dijit/layout/StackContainer" style="display: block; height:80%; width: 100%; overflow: auto;">
+				<div id="servicesStack" data-dojo-type="dijit/layout/StackContainer" style="top:48px; display: block; height:70%; width: 100%; overflow: auto;">
 					<div id="services-content" >
 					</div>
 				</div>
@@ -94,34 +104,38 @@
 				</div>
 			</div>
 			<div id="baseMapContent" class="panel" style="display:none;">
-				<h1 id="h1">Options
+				<h1 id="h1">Output options
 				</h1>
 				<div id="closeBase_button" class="close-button"></div>
 
 				<div id="BaseStack" data-dojo-type="dijit/layout/StackContainer" style="display: block; height: 90%; width: 100%; overflow: auto;">
 					<div id="base-content" style="height:90%;">
 						<div>
-							<p><b>Size of list of found services:</b><br>
-							<input type="number" id="outList_Size" value = "10"><br><br>
-							<p><b>Base map spatial reference:</b><br>
-							<select id="basemap_SR" style="height:30px; width:90%">
+							<p><b>Output spatial reference:</b><br>
+							<select id="basemap_SR" style="height:30px; width:90%" name="basemap_SR">
 								<option value="102100">WGS 1984 Web Mercator Auxiliary Sphere</option>
-								<option value="102113">WGS 1984 Web Mercator</option>
+								<option valu="102113">WGS 1984 Web Mercator</option>
 							</select>
 							<p><b>Map scale:</b><br>
-							<select id="baseMap_scale" style="height:30px; width:90%">
-									<option value="250000">1:250,000</option>
-									<option value="100000">1:100,000</option>
-									<option value="50000">1:50,000</option>
-									<option value="25000">1:25,000</option>
+							<select id="baseMap_scale" data-dojo-type="dijit/form/ComboBox" style="height:30px; width:90%" name="baseMap_scale">
+									<option selected="selected" value "-1">From base map</option>
+									<option value="1000">1,000</option>
+									<option value="10000">10,000</option>
+									<option value="24000">24000</option>
+									<option value="100000">100,000</option>
+									<option value="500000">500,000</option>
+									<option value="750000">750,000</option>
+									<option value="1000000">1,000,000</option>
+									<option value="3000000">3,000,000</option>
+									<option value="10000000">10,000,000</option>
 							</select>
 							<p>
 							<div>
-							<span id = "document_units"><b>Document units:</b> Points</b></span>
 							</div>
 							<p><b>Output map resolution (dpi):</b><br>
 							<input type="number" id="outMap_DPI" value = "300"><br><br>
-							<button id="map_utput_set_button">Set</button>
+							<hr>
+							<span id = "document_units"><b>Document units:</b> Points</b></span>
 							<button id="map_doc_refresh_button">Refresh doc properties</button>
 						</div>
 					</div>

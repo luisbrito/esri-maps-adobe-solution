@@ -41,11 +41,11 @@
 						</MinSize>
 					</Geometry>
 					<Icons>
-						<Icon Type="Normal">./images/esri-10GlobeLogo_BW.png</Icon>
-						<Icon Type="RollOver">./images/esri-10GlobeLogo_BW.png</Icon>
-						<Icon Type="Disabled">./images/esri-10GlobeLogo_BW.png</Icon>
-						<Icon Type="DarkNormal">./images/esri-10GlobeLogo_BW.png</Icon>
-						<Icon Type="DarkRollOver">./images/esri-10GlobeLogo_BW.png</Icon>
+						<Icon Type="Normal">./images/esri-23x23_black.png</Icon>
+						<Icon Type="RollOver">./images/esri-23x23_black.png</Icon>
+						<Icon Type="Disabled">./images/esri-23x23_black.png</Icon>
+						<Icon Type="DarkNormal">./images/esri-23x23_black.png</Icon>
+						<Icon Type="DarkRollOver">./images/esri-23x23_black.png</Icon>
 					</Icons>
 				</UI>
 			</DispatchInfo>
