@@ -2,6 +2,7 @@ define([
 	"dojo/parser", "dojo/ready", "dojo/dom", "dojo/dom-class", "dojo/dom-construct", "dojo/_base/array", "dijit/registry",
 	"dojo/on",
 	"esri/arcgis/Portal",
+    "esri/IdentityManager",
 	"esri/arcgis/utils",
 	"esri/urlUtils",
  	"esri/request",
@@ -28,13 +29,14 @@ define([
 	"js/globals",
 	"js/utils"
 ], function (
-	parser, ready, dom, domClass, domConstruct, array, registry, on, esriPortal, arcgisUtils,urlUtils,
+	parser, ready, dom, domClass, domConstruct, array, registry, on, esriPortal, idManager, arcgisUtils,urlUtils,
 	esriRequest,
 	SpatialReference, Extent, Point, ProjectParameters, GeometryService, Draw, event, Edit, SimpleLineSymbol, SimpleFillSymbol,
 	Font, TextSymbol, Color, Graphic, config, esriLang) {
 
-    var baseMapGallery, baseLayerName;
+    var baseMapGallery, baseLayerName, mYInst;
 
+    mYInst =  new CSInterface();
     var portalUrl = 'http://www.arcgis.com';
     //var geometryServiceUrl = "http://tasks.arcgisonline.com/ArcGIS/rest/services/Geometry/GeometryServer";
     //var geometryServiceUrl = "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer";
@@ -50,8 +52,11 @@ define([
     var outUnits = "Pixels";
 
     var portal, portalUrl, groupGrid, lastStyle, mapInfo;
+	var token = "", user_name = "", exp_in = "";
     function startup() {
         //create the portal
+		mYInst.addEventListener("esri.authorizing.event.message", dialogListener);
+		mYInst.requestOpenExtension("com.esri.Autorization.dialog", "");
     	fillSymbol = new SimpleFillSymbol();
         portal = new esriPortal.Portal(portalUrl);
         //dom.byId("h_layers").innerHTML = Headers.layers;
@@ -171,6 +176,66 @@ define([
     		var id = pane.id + "-tab";
     		pane.className = "selected " + id;
     }
+    
+	function dialogListener(event) {
+		mYInst.removeEventListener("esri.authorizing.event.message", dialogListener);
+		var params = event.data.split("&");
+		if (params == null)
+			dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+		else if (params.length < 2)
+			dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+		else {
+			var items = params[0].split("=");
+			if (items.length < 2)
+				dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+			else if (items[0] == "error"){
+				var err_descr = params[1].split("=");
+				if (err_descr < 2)
+					dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+				else if (err_descr[0] != "error_description")
+					dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+				else
+					dom.byId('downloadStatus').innerHTML = decodeURI(err_descr[1]);
+			}
+			else {
+				count = 0;
+				for (i = 0; i < params.length; i++){
+					var res = params[i].split("=");
+					if (res.length != 2)
+						dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+					else {
+						switch (res[0]) {
+						case "access_token":
+							token = res[1];
+							count++;
+							break;
+						case "expires_in":
+							exp_in = res[1];
+							count++;
+							break;
+						case "username":
+							user_name = res[1];
+							count++;
+							break;
+						}
+					}
+				}
+				if (count != 3)
+					dom.byId('downloadStatus').innerHTML = 'Authorization failed';
+				else{
+					idManager.registerToken({
+						server: "http://www.arcgis.com/sharing/rest",
+						userId: user_name,
+						token: token,
+						expires: exp_in,
+						ssl: false
+					});
+				}
+			}
+		}
+		
+	}
+    
 
     function hidePanels() {
     	var up = dom.byId( "utilityPanel" ).children;
@@ -252,22 +317,6 @@ define([
         	addRect.onclick = onAddRect;
         }
         refreshDocProps();
-        /*var inter = new CSInterface();
-        var newScript = '$._ext_ILST.getUnits()';
-        inter.evalScript( newScript, function ( pp ) {
-        	var arr = pp.split(".");
-        	if ((arr[1] == "Centimeters") ||
-        			(arr[1] == "Inches") ||
-        			(arr[1] == "Millimeters") ||
-        			(arr[1] == "Picas") ||
-        			(arr[1] == "Points"))
-        		outUnits = arr[1];
-        	var unitDiv = dom.byId( "document_units");
-        	if (unitDiv != null)
-        	{
-        		unitDiv.innerHTML = "<b>Document units:</b> " + outUnits;
-        	}
-        });*/
     }
     
     function endGraphic(evt){

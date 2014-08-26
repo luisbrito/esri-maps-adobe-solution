@@ -38,7 +38,7 @@
 	<div id="content" data-dojo-type="dijit/layout/BorderContainer" data-dojo-props="gutters:false, liveSplitters:false" style="width:100%;height:100%;">
 		<div id="header" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'top'" title="" >
 			<div class="searchPane">
-				<span class="searchCtrl" > <!-- IE7: workaround for inherited margin bug: http://positioniseverything.net/explorer/inherited_margin.html -->
+				<span class="searchCtrl" >
 					<input type="text" class="text" id="searchText" tabindex="1"/>
 				</span>
 				<input type="submit" title="Start searching" name="submit" value="Search" class="search-button" disabled='disabled' id="findResults" tabindex="2"/>
@@ -72,7 +72,7 @@
 				<h1 id="h_layers">Found Layers
 				</h1>
 				<div id="closeServices_button" class="close-button"></div>
-				<div id="upSection" style="position:absolute; height:30px; top:48px;">
+				<div id="upSection" style="position:absolute; height:25px; top:40px;">
 					<label for="outList_Size" style="font-family: 'Arial';font-size: 12px; ">Found layers list size</label>
 					<input  type="number" id="outList_Size" value = "10">
 				</div>
