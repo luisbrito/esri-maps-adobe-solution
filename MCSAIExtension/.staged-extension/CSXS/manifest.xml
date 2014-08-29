@@ -33,12 +33,12 @@
 					<Menu>Esri Maps for Adobe Creative Cloud</Menu>
 					<Geometry>
 						<Size>
-							<Height>400</Height>
-							<Width>600</Width>
+							<Height>600</Height>
+							<Width>700</Width>
 						</Size>
 						<MinSize>
-							<Height>400</Height>
-							<Width>600</Width>
+							<Height>600</Height>
+							<Width>700</Width>
 						</MinSize>
 					</Geometry>
 					<Icons>
@@ -66,10 +66,6 @@
 							<Height>300</Height>
 							<Width>300</Width>
 						</Size>
-						<MinSize>
-							<Height>300</Height>
-							<Width>300</Width>
-						</MinSize>
 					</Geometry>
 				</UI>
 			</DispatchInfo>

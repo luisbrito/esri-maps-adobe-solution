@@ -1,6 +1,6 @@
-﻿$._ext_ILST={
+$._ext_ILST={
 	    run : function(path) {
-	        var doc /*= app.activeDocument*/;
+	        var doc;
 	        if (app.documents.length > 0)
 	            doc = app.activeDocument;
 	        else
@@ -26,8 +26,6 @@
 	        pi.file = f;
 	        pi.embed();
 	        f.close();
-	        /************************************************************************/
-	        
 	        return path;
 	    },
 	    
@@ -120,4 +118,4 @@
 	   			un = app.activeDocument.rulerUnits;
 	   		return un;
 	   },
-	};
+};
