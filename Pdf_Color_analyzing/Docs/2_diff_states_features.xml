@@ -1,0 +1,16 @@
+<Figure index ="0">
+	<Figure index ="1">
+		<Name>Layers</Name>
+		<Figure index ="2">
+			<Name>2_states</Name>
+				<Figure index="3">
+					<Name>Wyoming</Name>
+					<FID>0</FID>
+				</Figure>
+				<Figure index="4">
+					<Name>Colorado</Name>
+					<FID>1</FID>
+				</Figure>
+		</Figure>
+	</Figure>
+</Figure>
