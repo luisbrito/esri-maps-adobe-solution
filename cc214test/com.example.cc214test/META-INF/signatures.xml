@@ -1,0 +1,40 @@
+<signatures>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#" Id="PackageSignature">
+<SignedInfo>
+<CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+<SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+<Reference Type="http://www.w3.org/2000/09/xmldsig#Manifest" URI="#PackageContents">
+<Transforms>
+<Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+</Transforms>
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<DigestValue>RLfuWhDRJhLKn5FEwfRpwfdAU3EHv3AyKL7+89TkO+E=</DigestValue>
+</Reference>
+</SignedInfo>
+<SignatureValue Id="PackageSignatureValue">Lr6eLnc3KZ0obttJtaNN2sxw92wUf2waL1Sad6HnFfd5rHlFqiQNEm7wznSpHhnd
+YrQCs80/b7b4ED9noKRdc8cF0oYm+QbZK13RDChmGDKWPRMyoD5nYUxYX0+WO3q/
+tz6is/eUQVbMbxZslJUa84t9mmbF/ij/6fTQoQp6gO8=</SignatureValue>
+
+<KeyInfo>
+<X509Data>
+<X509Certificate>MIICJjCCAY+gAwIBAgIaMzFlNTU5ZDc6MTQ0ZjJkN2Q2NGY6LTgwMDAwDQYJKoZI
+hvcNAQEFBQAwQDELMAkGA1UEBhMCVVMxDTALBgNVBAoTBEVTUkkxCzAJBgNVBAsT
+AlBNMRUwEwYDVQQDEwxWLiBJLiBLb3psb3YwHhcNMTQwMzIzMDY0NzE1WhcNMTkw
+MzI0MDY0NzE1WjBAMQswCQYDVQQGEwJVUzENMAsGA1UEChMERVNSSTELMAkGA1UE
+CxMCUE0xFTATBgNVBAMTDFYuIEkuIEtvemxvdjCBnzANBgkqhkiG9w0BAQEFAAOB
+jQAwgYkCgYEAiAaOLbGG130NuBROHTHRQyx6rWAJIsmux/QzxPL0W6zs4axzhBj+
+gsSpHypcNnYfmVYV9/tqSNwWa1RMP6XSl40w4dtxhyz5r8KPU1S1qWEsUgBBugQ2
+nzKj+lPFCG90ZqE6mc1QUJd6vIgvJZUseXeSb8qSIPmYwIoT+JUEki8CAwEAAaMX
+MBUwEwYDVR0lBAwwCgYIKwYBBQUHAwMwDQYJKoZIhvcNAQEFBQADgYEAN2i8C7pl
+DC2q9POOSz4Xdv/+1NH3Sz1K5JgeOprfKWp1UP+RCYj1gDaTdJdKat8wBR4IRhtk
+Cku1NGQDq2z4HewGp8c/gxu6/H3gwU3CF0wkJ0gzieFE3ouB0nacNDY5gVD73O7C
+U591JR+MO3E6DPe2b/bl9i9ne16Z8pnnALY=
+</X509Certificate>
+</X509Data>
+</KeyInfo>
+<Object>
+<Manifest Id="PackageContents">
+<Reference URI="mimetype"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>b07Onu9cTlGK1WpvgtFOlfk+Tl0HscuNIt6GZtesPX8=</DigestValue></Reference><Reference URI=".debug"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>AORLMM+UI8oPy+6+3Pvk0leOQLGJ5+VtIzaSlzzi7Hg=</DigestValue></Reference><Reference URI="CSXS/manifest.xml"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>hvgWFBZ9+sIHKwb8gdS4z/vgvDfj9zq/k5+MjEIFKnE=</DigestValue></Reference><Reference URI="ext.js"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>Yz+qP0SFHI5eE+A0F8xS7axnQWFSEAF8q9IWrtL/IwM=</DigestValue></Reference><Reference URI="index.html"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>1jX9aO97rIxuzDopNU8/C0gx0KJuPVJh8PxKJvqxXwE=</DigestValue></Reference><Reference URI="metainfo"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>fmuY+ReV680DytWzI1jmYFHZwWYeESTBMB8uhf7hJAI=</DigestValue></Reference><Reference URI="style.css"><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><DigestValue>FF0YBmXYXxlD0iFBEoi0Zi19P7RgzJz+2Xyg4ToWetw=</DigestValue></Reference></Manifest>
+</Object>
+</Signature>
+</signatures>
