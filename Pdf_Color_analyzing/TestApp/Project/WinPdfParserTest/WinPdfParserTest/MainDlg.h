@@ -114,6 +114,7 @@ public:
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		m_Cancel.SetCanceled();
+		m_static.SetWindowTextW(_T("Please wait. Parsing is finishing"));
 //		EndDialog(wID);
 		return 0;
 	}
@@ -144,15 +145,12 @@ public:
 
 	BEGIN_MSG_MAP(CMainDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		//MESSAGE_HANDLER(WM_COMMAND, OnBoxSelChange)
-		//COMMAND_ID_HANDLER(CBN_SELCHANGE, OnBoxSelChange)
 		COMMAND_HANDLER(IDC_LAYERS_CMB,CBN_SELCHANGE,OnBoxSelChange)
 		COMMAND_ID_HANDLER(IDC_MYCOLOR_BTN, OnColorBtn)
 		COMMAND_ID_HANDLER(IDC_IN_FILE_BTN, OnBrowse)
 		COMMAND_ID_HANDLER(IDC_START_BTN, OnStart)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
-		//NOTIFY_CODE_HANDLER(CBN_SELCHANGE, OnBoxSelChange)
-		//REFLECT_NOTIFICATIONS ()
+		COMMAND_ID_HANDLER(IDC_SAVE_BTN, OnSave)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -202,11 +200,14 @@ public:
 		HWND hwndComponents = GetDlgItem(IDC_COLOR_CIMPONENTS_EDT);
 		HWND hwndLayers = GetDlgItem(IDC_LAYERS_CMB);
 		HWND hwndFeatures = GetDlgItem(IDC_LIST1);
+		HWND hwndSave = GetDlgItem(IDC_SAVE_BTN);
+
 		m_comboColorType.Attach(hwndColorType);
 		m_editInFile.Attach(hwndInfIle);
 		m_editComponents.Attach(hwndComponents);
 		m_comboLayers.Attach(hwndLayers);
 		m_lbFeatures.Attach(hwndFeatures);
+		m_buttonSave.Attach(hwndSave);
 
 		m_comboColorType.AddString(_T("RGB"));
 		m_comboColorType.AddString(_T("CMYK"));
@@ -223,6 +224,43 @@ public:
 		{
 			m_editInFile.SetWindowText(dlg.m_szFileName);
 		}
+		return 0;
+	}
+
+	LRESULT OnSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		if (m_ress.size() == 0)
+		{
+			MessageBox(_T("There is nothing to save"), _T("Saving results"), MB_OK);
+			return 0;
+		}
+		CFileDialog dlg(FALSE);
+		int res = dlg.DoModal();
+		if (res != IDOK)
+		{
+			return 0;
+			//m_editInFile.SetWindowText(dlg.m_szFileName);
+		}
+		FILE *fileOut;
+		_tfopen_s(&fileOut, dlg.m_szFileName, _T("wt"));
+		if (fileOut == NULL)
+		{
+			MessageBox(_T("Could not create putput fale"), _T("Saving results"), MB_OK);
+			return 0;
+		}
+		std::map< std::string, std::vector<int> >::iterator it = m_ress.begin();
+		for (; it != m_ress.end(); it++)
+		{
+			fprintf(fileOut, "Layer %s:\n", it->first.c_str());
+			for (size_t i = 0; i < it->second.size(); i++)
+			{
+				if (i != 0)
+					fprintf(fileOut, ", ");
+				fprintf(fileOut, "%ld", it->second[i]);
+			}
+			fprintf(fileOut, "\n----------------------------------------------------\n");
+		}
+		fclose(fileOut);
 		return 0;
 	}
 
@@ -302,23 +340,12 @@ public:
 		}
 		CString strInFile;
 		m_editInFile.GetWindowText(strInFile.GetBufferSetLength(len + 1), len + 1);
-/*		CGeoPdfColorFinder pdfColorFinder;
-		if (!pdfColorFinder.IsLibraryInit())
-		{
-			MessageBox(_T("Could not initialize the library"), _T("Start search"), MB_OK | MB_ICONERROR);
-			return 0;
-		}*/
 		char *buff;
 		buff = new char[len + 1];
 		wcstombs(buff, strInFile, len);
 		buff[len] = 0;
 		std::string ss(buff);
 		delete[] buff;
-/*		if (!pdfColorFinder.OpenPdf(ss.c_str()))
-		{
-			MessageBox(_T("Could not open PDF file"), _T("Start search"), MB_OK | MB_ICONERROR);
-			return 0;
-		}*/
 
 		m_ress.clear();
 		SMyThreadParams sParams;
@@ -327,19 +354,11 @@ public:
 		sParams.m_path = ss;
 		CMyProgressDialog startDlg;
 		startDlg.m_pParams = &sParams;
-		startDlg.DoModal();
-		/*
-		bool res = pdfColorFinder.FindFeatures4Color(colorSpace, comps);
-		if (!res)
-		{
-			std::string mess;
-			pdfColorFinder.GetErrorMessage(mess);
-			CString mesS(mess.c_str());
-			MessageBox(mesS, _T("Start search"), MB_OK | MB_ICONERROR);
-			return 0;
-		}*/
+
+		m_buttonSave.EnableWindow(FALSE);
 		m_comboLayers.ResetContent();
 		m_lbFeatures.ResetContent();
+		startDlg.DoModal();
 		m_ress = sParams.m_results;
 		std::map< std::string, std::vector<int> >::iterator it = m_ress.begin();
 		for (; it != m_ress.end(); it++)
@@ -357,7 +376,8 @@ public:
 				}
 			}
 		}
-
+		if (m_ress.size() != 0)
+			m_buttonSave.EnableWindow(TRUE);
 		return 0;
 	}
 
@@ -412,5 +432,6 @@ public:
 	CComboBox m_comboColorType;
 	CComboBox m_comboLayers;
 	CListBox m_lbFeatures;
+	CButton m_buttonSave;
 	std::map< std::string, std::vector<int> > m_ress;
 };

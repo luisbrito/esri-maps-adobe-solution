@@ -51,6 +51,7 @@ private:
 	bool ParseStructElement(CosObj elem, ASInt32 count);
 	int CalcMaxElement();
 	void CalcElements(PDSElement element, int& count);
+	bool ParseLabels(PDSElement element, ASInt32 count);
 protected:
 	std::map< std::string, std::vector<int> > m_featuresWithColor;
 	bool m_isInit;

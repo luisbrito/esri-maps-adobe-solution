@@ -268,17 +268,12 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 		if (m_lastError != MyErrorCodes::NoError)
 			return false;
 	}
-	// Find out: is this a feature?
-	long id = -1;
-	if (!idVal.empty())
-		sscanf_s(idVal.c_str(), "%ld", &id, sizeof(long));
-	if (id < 0)
-		return true; // It's not a feature
 
 	// Get the parent of the feature (layer)
 	PDSElement parentElem;
 	ASBool isRoot;
 	PDSElementGetParent(element, &parentElem, &isRoot);
+
 	std::string layerName;
 	ASErrorCode res = GetPdsTitleAsString(parentElem, layerName);
 	if (res != MyErrorCodes::NoError)
@@ -286,6 +281,12 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 		m_lastError = res;
 		return false;
 	}
+	// Find out: is this a feature?
+	long id = -1;
+	if (!idVal.empty())
+		sscanf_s(idVal.c_str(), "%ld", &id, sizeof(long));
+	if (id < 0)
+		return true; // It's not a feature
 
 	// Find graphical elements of the feature
 	PDEContainer featureCont = (PDEContainer)cont;
