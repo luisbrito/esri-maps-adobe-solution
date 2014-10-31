@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GeoPdfColorFinder.h"
+#include "ASExtraCalls.h"
 
 
 CGeoPdfColorFinder::CGeoPdfColorFinder(void)
@@ -81,22 +82,27 @@ bool CGeoPdfColorFinder::OpenPdf(const char* path)
 
 int CGeoPdfColorFinder::CalcMaxElement()
 {
-		PDSTreeRoot tree;
+	PDSTreeRoot tree;
+	DURING
 		ASBool r = PDDocGetStructTreeRoot(m_Doc, &tree);
-		ASInt32 count = PDSTreeRootGetNumKids(tree);
-		int retVal = 0;
-		for (ASInt32 i = 0; i < count; i++)
-		{
-			PDSElement kid;
-			PDSTreeRootGetKid(tree, i, &kid);
-			ASAtom  type =  PDSElementGetType(kid); 
-			CString sType(ASAtomGetString(type));
-			if (sType.CompareNoCase(_T("Figure")) != 0)
-				continue;
-			retVal++;
-			CalcElements(kid, retVal);
-		}
-		return retVal;
+	HANDLER
+		m_lastError = ERRORCODE;
+		return false;
+	END_HANDLER
+	ASInt32 count = PDSTreeRootGetNumKids(tree);
+	int retVal = 0;
+	for (ASInt32 i = 0; i < count; i++)
+	{
+		PDSElement kid;
+		PDSTreeRootGetKid(tree, i, &kid);
+		ASAtom  type =  PDSElementGetType(kid); 
+		CString sType(ASAtomGetString(type));
+		if (sType.CompareNoCase(_T("Figure")) != 0)
+			continue;
+		retVal++;
+		CalcElements(kid, retVal);
+	}
+	return retVal;
 }
 
 bool CGeoPdfColorFinder::FindFeatures4Color(ColorType colorType, std::vector<long> components)
@@ -105,11 +111,15 @@ bool CGeoPdfColorFinder::FindFeatures4Color(ColorType colorType, std::vector<lon
 		return false;
 	m_lastError = MyErrorCodes::NoError; 
 	m_myErrorCode = MyErrorCodes::NoError;
+	m_hasLabels = false;
 	m_featuresWithColor.clear();
+	m_labelsWithColor.clear();
 	if (!SetColors(colorType, components))
 		return false;
 	bool retVal = true;
 	m_maxCount = CalcMaxElement();
+	if (m_lastError != MyErrorCodes::NoError)
+		return false;
 	m_curIndex = 0;
 	m_curPercentage = 0;
 	m_canceltTracker->SetProgress(0);
@@ -142,6 +152,9 @@ bool CGeoPdfColorFinder::FindFeatures4Color(ColorType colorType, std::vector<lon
 		m_lastError = ERRORCODE;
 		return false;
 	END_HANDLER
+
+	if (m_hasLabels)
+		ParseLabels();
 	return retVal;
 }
 
@@ -209,6 +222,14 @@ bool CGeoPdfColorFinder::SetColors(ColorType colorType, std::vector<long> compon
 
 void CGeoPdfColorFinder::CalcElements(PDSElement element, int& count)
 {
+	std::string tit;
+	ASErrorCode err = GetPdsTitleAsString(element, tit);
+	if (err == MyErrorCodes::NoError)
+	{
+		CString sTit(tit.c_str());
+		if (sTit.CompareNoCase(_T("Labels")) == 0)
+			m_hasLabels = true;
+	}
 	ASInt32 c = PDSElementGetNumKids(element);
 	if (c == 0)
 		return;
@@ -241,6 +262,7 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 		m_curPercentage = curP;
 		m_canceltTracker->SetProgress(curP);
 	}
+
 
 	if (count < 1)
 		return true; // no kid, go forward
@@ -447,4 +469,165 @@ void CGeoPdfColorFinder::GetFoundFeatures4Layer(std::string& layer, std::vector<
 	if (it == m_featuresWithColor.end())
 		return;
 	features = it->second;
+}
+
+bool CGeoPdfColorFinder::ParseLabels()
+{
+	PDPage pg = PDDocAcquirePage(m_Doc, 0);
+	PDEContent pageContent = PDPageAcquirePDEContent(pg, 0);
+	ASInt32 count = PDEContentGetNumElems(pageContent);
+	bool found = false;
+	for (ASInt32 i = 0; i < count; i++)
+	{
+		PDEElement elem = PDEContentGetElem(pageContent, i);
+		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(elem));
+		if (type != kPDEContainer)
+			continue;
+		PDOCMD ocmd = PDEElementGetOCMD(elem);
+		if (ocmd)
+		{
+			PDOCG* ocgs = PDOCMDGetOCGs(ocmd);
+			for (int j = 0;;j++)
+			{
+				if (ocgs[j] == NULL)
+					break;
+				ASText ocgName;
+				ocgName = PDOCGGetName(ocgs[j]);
+				CString strOcgName(ASTextGetEncoded(ocgName, 0));
+				strOcgName.TrimLeft();
+				strOcgName.TrimRight();
+				ASTextDestroy(ocgName);
+				if (strOcgName.CompareNoCase(_T("Layers")) == 0)
+				{
+					found = true;
+					FindStartPoint4Labels("Labels", elem);
+				}
+			}
+		}
+	}
+	if (found)
+	{
+		PDPageReleasePDEContent(pg, 0);
+		PDPageRelease(pg);
+		return true;
+	}
+	for (ASInt32 i = 0; i < count; i++)
+	{
+		PDEElement elem = PDEContentGetElem(pageContent, i);
+		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(elem));
+		if (type != kPDEContainer)
+			continue;
+		if (FindStartPoint4Labels("Layers", elem))
+			break;
+	}
+	PDPageReleasePDEContent(pg, 0);
+	PDPageRelease(pg);
+	return true;
+}
+
+bool CGeoPdfColorFinder::FindStartPoint4Labels(const char* pattern, PDEElement elem)
+{
+	CString sPattern(pattern);
+	PDEContainer container = reinterpret_cast<PDEContainer>(elem);
+	PDEContent content =  PDEContainerGetContent(container);
+	ASInt32 count = PDEContentGetNumElems(content);
+	if (count == 0)
+		return false;
+	bool found = false;
+	for (ASInt32 i = 0; i < count; i++)
+	{
+		PDEElement kid = PDEContentGetElem(content, i);
+		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(kid));
+		PDOCMD ocmd = PDEElementGetOCMD(kid);
+		if (ocmd)
+		{
+			PDOCG* ocgs = PDOCMDGetOCGs(ocmd);
+			for (int j = 0;;j++)
+			{
+				if (ocgs[j] == NULL)
+					break;
+				ASText ocgName;
+				ocgName = PDOCGGetName(ocgs[j]);
+				CString strOcgName(ASTextGetEncoded(ocgName, 0));
+				strOcgName.TrimLeft();
+				strOcgName.TrimRight();
+				ASTextDestroy(ocgName);
+				if (sPattern.CompareNoCase(strOcgName) == 0)
+				{
+					if (sPattern.CompareNoCase(_T("Labels")) != 0)
+						found = FindStartPoint4Labels("Labels", kid);
+					else
+						found = ParseLabelsElement(kid);
+					if (found)
+						return true;
+				}
+			}
+		}
+	}
+	return found;
+}
+
+bool CGeoPdfColorFinder::ParseLabelsElement(PDEElement elem)
+{
+	PDEContainer container = reinterpret_cast<PDEContainer>(elem);
+	PDEContent content =  PDEContainerGetContent(container);
+	ASInt32 count = PDEContentGetNumElems(content);
+	if (count == 0)
+		return false;
+	bool found = false;
+	for (ASInt32 i = 0; i < count; i++)
+	{
+		PDEElement kid = PDEContentGetElem(content, i);
+		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(kid));
+		PDOCMD ocmd = PDEElementGetOCMD(kid);
+		if (type != kPDEContainer)
+			break;
+		PDEGraphicState grState;
+		ASBool hasG = PDEElementHasGState(kid, &grState, sizeof(PDEGraphicState));
+		if (ocmd)
+		{
+			PDOCG* ocgs = PDOCMDGetOCGs(ocmd);
+			for (int j = 0;;j++)
+			{
+				if (ocgs[j] == NULL)
+					break;
+				ASText ocgName;
+				ocgName = PDOCGGetName(ocgs[j]);
+				std::string strName(ASTextGetEncoded(ocgName, 0));
+				ParseLayerLabel(kid, strName);
+			}
+		}
+	}
+	return true;
+}
+
+void CGeoPdfColorFinder::ParseLayerLabel(PDEElement elem, std::string& layerName)
+{
+	PDEContainer container = reinterpret_cast<PDEContainer>(elem);
+	PDEContent content =  PDEContainerGetContent(container);
+	ASInt32 count = PDEContentGetNumElems(content);
+	if (count == 0)
+		return;
+	for (ASInt32 i = 0; i < count; i++)
+	{
+		PDEElement kid = PDEContentGetElem(content, i);
+		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(kid));
+		if (type != kPDEText)
+			 continue;
+		PDEText text = reinterpret_cast<PDEText>(kid);
+		PDEGraphicState grState;
+		PDETextGetGState(text, kPDETextRun, 0, &grState, sizeof(PDEGraphicState));
+		bool isEqual = CheckColor(grState.fillColorSpec);
+		if (isEqual)
+		{
+			m_labelsWithColor.insert(layerName);
+			return;
+		}
+		isEqual = CheckColor(grState.strokeColorSpec);
+		if (isEqual)
+		{
+			m_labelsWithColor.insert(layerName);
+			return;
+		}
+	}
 }

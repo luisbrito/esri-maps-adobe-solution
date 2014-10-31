@@ -34,6 +34,7 @@ struct MY_THREAD_PARAMS
 	std::string m_mess;
 	CCancel* m_pCancel;
 	std::map< std::string, std::vector<int> > m_results;
+	std::set<std::string> m_labels;
 };
 
 typedef struct MY_THREAD_PARAMS SMyThreadParams;
@@ -69,6 +70,8 @@ DWORD WINAPI MyThreadFunction( LPVOID lpParam )
 			finder.GetFoundFeatures4Layer(lays[i], feats);
 			pParams->m_results[lays[i]] = feats;
 		}
+		pParams->m_labels.clear();
+		finder.GetLabelsWithColor(pParams->m_labels);
 	}
 
 	PostMessage(pParams->m_pCancel->m_hwndDlg, WM_USER+2, 0, 0);
@@ -172,6 +175,17 @@ public:
 		buff[len] = 0;
 		std::string ss(buff);
 		delete[] buff;
+		CString str(ss.c_str());
+		if (str.CompareNoCase(_T("Labels")) == 0)
+		{
+			std::set<std::string>::iterator iter = m_labs.begin();
+			for(; iter != m_labs.end(); iter++)
+			{
+				CString sLab((*iter).c_str());
+				m_lbFeatures.AddString(sLab);
+			}
+			return 0;
+		}
 		std::map< std::string, std::vector<int> >::iterator it = m_ress.find(ss);
 		if (it == m_ress.end())
 			return 0;
@@ -360,7 +374,11 @@ public:
 		m_lbFeatures.ResetContent();
 		startDlg.DoModal();
 		m_ress = sParams.m_results;
+		m_labs = sParams.m_labels;
 		std::map< std::string, std::vector<int> >::iterator it = m_ress.begin();
+		bool isEmpty = true;
+		if (it != m_ress.end())
+			isEmpty = false;
 		for (; it != m_ress.end(); it++)
 		{
 			CString inStr(it->first.c_str());
@@ -378,6 +396,21 @@ public:
 		}
 		if (m_ress.size() != 0)
 			m_buttonSave.EnableWindow(TRUE);
+		if (!m_labs.empty())
+		{
+			CString labStr(_T("Labels"));
+			m_comboLayers.AddString(labStr);
+			if (isEmpty)
+			{
+				m_comboLayers.SetCurSel(0);
+				std::set<std::string>::iterator iter = m_labs.begin();
+				for(; iter != m_labs.end(); iter++)
+				{
+					CString sLab((*iter).c_str());
+					m_lbFeatures.AddString(sLab);
+				}
+			}
+		}
 		return 0;
 	}
 
@@ -434,4 +467,5 @@ public:
 	CListBox m_lbFeatures;
 	CButton m_buttonSave;
 	std::map< std::string, std::vector<int> > m_ress;
+	std::set<std::string> m_labs;
 };

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <map>
 #include "PDFInit.h"
 #include "PDFLCalls.h"
@@ -43,6 +44,10 @@ public:
 	}
 	void GetFoundLayers(std::vector<std::string>& layers);
 	void GetFoundFeatures4Layer(std::string& layer, std::vector<int>& features);
+	void GetLabelsWithColor(std::set<std::string>& labels)
+	{
+		labels = m_labelsWithColor;
+	}
 private:
 	bool ParseTreeElement(PDSElement element);
 	bool SetColors(ColorType colorType, std::vector<long> components);
@@ -51,11 +56,16 @@ private:
 	bool ParseStructElement(CosObj elem, ASInt32 count);
 	int CalcMaxElement();
 	void CalcElements(PDSElement element, int& count);
-	bool ParseLabels(PDSElement element, ASInt32 count);
+	bool ParseLabels();
+	bool ParseLabelsElement(PDEElement elem);
+	void ParseLayerLabel(PDEElement elem, std::string& layerName);
+	bool FindStartPoint4Labels(const char* pattern, PDEElement elem);
 protected:
 	std::map< std::string, std::vector<int> > m_featuresWithColor;
+	std::set <std::string> m_labelsWithColor;
 	bool m_isInit;
 	bool m_isOpen;
+	bool m_hasLabels;
 	PDDoc m_Doc;
 	ASErrorCode m_lastError;
 	int m_myErrorCode;
