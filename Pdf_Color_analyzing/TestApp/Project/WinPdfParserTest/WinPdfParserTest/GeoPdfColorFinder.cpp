@@ -323,8 +323,19 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 			continue;
 
 		// We've got such (it's a graphical element)
+		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(child));
+		bool checkStroke = true, checkFill = true;
+		if (type == kPDEPath)
+		{
+			PDEPath path = reinterpret_cast<PDEPath>(child);
+			ASUns32 opts = PDEPathGetPaintOp(path);
+			if (!(opts & 1))
+				checkStroke = false;
+			if ((!(opts & 2)) && (!(opts & 4)))
+				checkFill = false;
+		}
 
-		bool found = CheckColors(grState,id, layerName);
+		bool found = CheckColors(grState,id, layerName, checkStroke, checkFill);
 		if ((m_myErrorCode != MyErrorCodes::NoError) || (m_lastError != MyErrorCodes::NoError))
 			return false;
 		if (found)
@@ -333,48 +344,54 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 	return true;
 }
 
-bool CGeoPdfColorFinder::CheckColors(PDEGraphicState grState, int id, std::string layer)
+bool CGeoPdfColorFinder::CheckColors(PDEGraphicState grState, int id, std::string layer, bool checkStroke, bool checkFill)
 {
 	// Get fill color
 
-	bool isEqual = CheckColor(grState.fillColorSpec);
-	if ((m_myErrorCode != MyErrorCodes::NoError) || (m_lastError != MyErrorCodes::NoError))
-		return false;
-
-	// Add feature ID in the results if it contains the needed color
-	if (isEqual)
+	bool isEqual;
+	if (checkFill)
 	{
-		std::map< std::string, std::vector<int> >::iterator it = m_featuresWithColor.find(layer);
-		if (it != m_featuresWithColor.end())
-			it->second.push_back(id);
-		else
-		{
-			std::vector<int> vec;
-			vec.push_back(id);
-			m_featuresWithColor[layer] = vec;
+		isEqual= CheckColor(grState.fillColorSpec);
+		if ((m_myErrorCode != MyErrorCodes::NoError) || (m_lastError != MyErrorCodes::NoError))
+			return false;
 
+		// Add feature ID in the results if it contains the needed color
+		if (isEqual)
+		{
+			std::map< std::string, std::vector<int> >::iterator it = m_featuresWithColor.find(layer);
+			if (it != m_featuresWithColor.end())
+				it->second.push_back(id);
+			else
+			{
+				std::vector<int> vec;
+				vec.push_back(id);
+				m_featuresWithColor[layer] = vec;
+
+			}
+			return true;
 		}
-		return true;
 	}
 
 	// Get stroke color
-
-	isEqual = CheckColor(grState.strokeColorSpec);
-	if ((m_myErrorCode != MyErrorCodes::NoError) || (m_lastError != MyErrorCodes::NoError))
-		return false;
-	// Add feature ID in the results if it contains the needed color
-	if (isEqual)
+	if (checkStroke)
 	{
-		std::map< std::string, std::vector<int> >::iterator it = m_featuresWithColor.find(layer);
-		if (it != m_featuresWithColor.end())
-			it->second.push_back(id);
-		else
+		isEqual = CheckColor(grState.strokeColorSpec);
+		if ((m_myErrorCode != MyErrorCodes::NoError) || (m_lastError != MyErrorCodes::NoError))
+			return false;
+		// Add feature ID in the results if it contains the needed color
+		if (isEqual)
 		{
-			std::vector<int> vec;
-			vec.push_back(id);
-			m_featuresWithColor[layer] = vec;
+			std::map< std::string, std::vector<int> >::iterator it = m_featuresWithColor.find(layer);
+			if (it != m_featuresWithColor.end())
+				it->second.push_back(id);
+			else
+			{
+				std::vector<int> vec;
+				vec.push_back(id);
+				m_featuresWithColor[layer] = vec;
+			}
+			return true;
 		}
-		return true;
 	}
 	return false;
 }

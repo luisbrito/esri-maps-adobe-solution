@@ -51,7 +51,7 @@ public:
 private:
 	bool ParseTreeElement(PDSElement element);
 	bool SetColors(ColorType colorType, std::vector<long> components);
-	bool CheckColors(PDEGraphicState grState, int id, std::string layer);
+	bool CheckColors(PDEGraphicState grState, int id, std::string layer, bool checkStroke, bool checkFill);
 	bool CheckColor(PDEColorSpec cs);
 	bool ParseStructElement(CosObj elem, ASInt32 count);
 	int CalcMaxElement();
