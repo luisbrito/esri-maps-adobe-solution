@@ -114,6 +114,7 @@ bool CGeoPdfColorFinder::FindFeatures4Color(ColorType colorType, std::vector<lon
 	m_hasLabels = false;
 	m_featuresWithColor.clear();
 	m_labelsWithColor.clear();
+	m_missedNodes.clear();
 	if (!SetColors(colorType, components))
 		return false;
 	bool retVal = true;
@@ -308,7 +309,11 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 	if (!idVal.empty())
 		sscanf_s(idVal.c_str(), "%ld", &id, sizeof(long));
 	if (id < 0)
+	{
+		std::string elemTit;
+		ASErrorCode r = GetPdsTitleAsString(element, elemTit);
 		return true; // It's not a feature
+	}
 
 	// Find graphical elements of the feature
 	PDEContainer featureCont = (PDEContainer)cont;
@@ -317,22 +322,30 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 	for (ASInt32 i = 0; i < count; i ++)
 	{
 		PDEElement child = PDEContentGetElem(fContent, i);
-		PDEGraphicState grState;
-		ASBool hasG = PDEElementHasGState(child, &grState, sizeof(PDEGraphicState));
-		if (!hasG)
-			continue;
-
-		// We've got such (it's a graphical element)
 		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(child));
+		PDEGraphicState grState;
 		bool checkStroke = true, checkFill = true;
-		if (type == kPDEPath)
+		if (type == kPDEText)
 		{
-			PDEPath path = reinterpret_cast<PDEPath>(child);
-			ASUns32 opts = PDEPathGetPaintOp(path);
-			if (!(opts & 1))
-				checkStroke = false;
-			if ((!(opts & 2)) && (!(opts & 4)))
-				checkFill = false;
+			PDEText text = reinterpret_cast<PDEText>(child);
+			PDETextGetGState(text, kPDETextRun, 0, &grState, sizeof(PDEGraphicState));
+		}
+		else
+		{
+			ASBool hasG = PDEElementHasGState(child, &grState, sizeof(PDEGraphicState));
+			if (!hasG)
+				continue;
+
+			// We've got such (it's a graphical element)
+			if (type == kPDEPath)
+			{
+				PDEPath path = reinterpret_cast<PDEPath>(child);
+				ASUns32 opts = PDEPathGetPaintOp(path);
+				if (!(opts & 1))
+					checkStroke = false;
+				if ((!(opts & 2)) && (!(opts & 4)))
+					checkFill = false;
+			}
 		}
 
 		bool found = CheckColors(grState,id, layerName, checkStroke, checkFill);

@@ -63,6 +63,7 @@ private:
 protected:
 	std::map< std::string, std::vector<int> > m_featuresWithColor;
 	std::set <std::string> m_labelsWithColor;
+	std::set <std::string> m_missedNodes;
 	bool m_isInit;
 	bool m_isOpen;
 	bool m_hasLabels;
