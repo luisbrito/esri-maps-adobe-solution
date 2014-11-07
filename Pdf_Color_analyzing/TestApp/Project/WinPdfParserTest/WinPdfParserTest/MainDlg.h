@@ -33,8 +33,7 @@ struct MY_THREAD_PARAMS
 	std::string m_path;
 	std::string m_mess;
 	CCancel* m_pCancel;
-	std::map< std::string, std::vector<int> > m_results;
-	std::set<std::string> m_labels;
+	std::map< std::string, std::vector<SFeatureOrDecore> > m_results;
 };
 
 typedef struct MY_THREAD_PARAMS SMyThreadParams;
@@ -66,12 +65,10 @@ DWORD WINAPI MyThreadFunction( LPVOID lpParam )
 		finder.GetFoundLayers(lays);
 		for (size_t i = 0; i < lays.size(); i++)
 		{
-			std::vector<int> feats;
+			std::vector<SFeatureOrDecore> feats;
 			finder.GetFoundFeatures4Layer(lays[i], feats);
 			pParams->m_results[lays[i]] = feats;
 		}
-		pParams->m_labels.clear();
-		finder.GetLabelsWithColor(pParams->m_labels);
 	}
 
 	PostMessage(pParams->m_pCancel->m_hwndDlg, WM_USER+2, 0, 0);
@@ -175,7 +172,7 @@ public:
 		buff[len] = 0;
 		std::string ss(buff);
 		delete[] buff;
-		CString str(ss.c_str());
+/*		CString str(ss.c_str());
 		if (str.CompareNoCase(_T("Labels")) == 0)
 		{
 			std::set<std::string>::iterator iter = m_labs.begin();
@@ -185,14 +182,20 @@ public:
 				m_lbFeatures.AddString(sLab);
 			}
 			return 0;
-		}
-		std::map< std::string, std::vector<int> >::iterator it = m_ress.find(ss);
+		}*/
+		std::map< std::string, std::vector<SFeatureOrDecore> >::iterator it = m_ress.find(ss);
 		if (it == m_ress.end())
 			return 0;
 		for (size_t i = 0; i < it->second.size(); i++)
 		{
 			CString sss;
-			sss.Format(_T("%ld"), it->second[i]);
+			if (it->second[i].m_isInt)
+				sss.Format(_T("%ld"), it->second[i].m_Feature);
+			else
+			{
+				CString sDecor(it->second[i].m_Decor.c_str());
+				sss = sDecor;
+			}
 			m_lbFeatures.AddString(sss);
 		}
 		return 0;
@@ -262,7 +265,7 @@ public:
 			MessageBox(_T("Could not create putput fale"), _T("Saving results"), MB_OK);
 			return 0;
 		}
-		std::map< std::string, std::vector<int> >::iterator it = m_ress.begin();
+		std::map< std::string, std::vector<SFeatureOrDecore> >::iterator it = m_ress.begin();
 		for (; it != m_ress.end(); it++)
 		{
 			fprintf(fileOut, "Layer %s:\n", it->first.c_str());
@@ -270,7 +273,10 @@ public:
 			{
 				if (i != 0)
 					fprintf(fileOut, ", ");
-				fprintf(fileOut, "%ld", it->second[i]);
+				if (it->second[i].m_isInt)
+					fprintf(fileOut, "%ld", it->second[i].m_Feature);
+				else
+					fprintf(fileOut, "%s", it->second[i].m_Decor.c_str());
 			}
 			fprintf(fileOut, "\n----------------------------------------------------\n");
 		}
@@ -374,8 +380,7 @@ public:
 		m_lbFeatures.ResetContent();
 		startDlg.DoModal();
 		m_ress = sParams.m_results;
-		m_labs = sParams.m_labels;
-		std::map< std::string, std::vector<int> >::iterator it = m_ress.begin();
+		std::map< std::string, std::vector<SFeatureOrDecore> >::iterator it = m_ress.begin();
 		bool isEmpty = true;
 		if (it != m_ress.end())
 			isEmpty = false;
@@ -389,14 +394,20 @@ public:
 				for (size_t i = 0; i < it->second.size(); i++)
 				{
 					CString sss;
-					sss.Format(_T("%ld"), it->second[i]);
+					if (it->second[i].m_isInt)
+						sss.Format(_T("%ld"), it->second[i].m_Feature);
+					else
+					{
+						CString sDecor(it->second[i].m_Decor.c_str());
+						sss = sDecor;
+					}
 					m_lbFeatures.AddString(sss);
 				}
 			}
 		}
 		if (m_ress.size() != 0)
 			m_buttonSave.EnableWindow(TRUE);
-		if (!m_labs.empty())
+		/*if (!m_labs.empty())
 		{
 			CString labStr(_T("Labels"));
 			m_comboLayers.AddString(labStr);
@@ -410,7 +421,7 @@ public:
 					m_lbFeatures.AddString(sLab);
 				}
 			}
-		}
+		}*/
 		return 0;
 	}
 
@@ -466,6 +477,6 @@ public:
 	CComboBox m_comboLayers;
 	CListBox m_lbFeatures;
 	CButton m_buttonSave;
-	std::map< std::string, std::vector<int> > m_ress;
+	std::map< std::string, std::vector<SFeatureOrDecore> > m_ress;
 	std::set<std::string> m_labs;
 };

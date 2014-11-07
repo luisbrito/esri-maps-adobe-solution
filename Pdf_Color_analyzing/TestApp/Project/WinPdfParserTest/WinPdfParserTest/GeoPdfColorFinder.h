@@ -20,6 +20,15 @@
 #include "PDSReadCalls.h"
 #include "GeoPdfParserUtilities.h"
 
+struct FeatureOrDecor
+{
+	bool m_isInt;
+	int m_Feature;
+	std::string m_Decor;
+};
+
+typedef struct FeatureOrDecor SFeatureOrDecore;
+
 class CGeoPdfColorFinder
 {
 public:
@@ -43,11 +52,7 @@ public:
 		}
 	}
 	void GetFoundLayers(std::vector<std::string>& layers);
-	void GetFoundFeatures4Layer(std::string& layer, std::vector<int>& features);
-	void GetLabelsWithColor(std::set<std::string>& labels)
-	{
-		labels = m_labelsWithColor;
-	}
+	void GetFoundFeatures4Layer(std::string& layer, std::vector<SFeatureOrDecore>& features);
 private:
 	bool ParseTreeElement(PDSElement element);
 	bool SetColors(ColorType colorType, std::vector<long> components);
@@ -56,14 +61,12 @@ private:
 	bool ParseStructElement(CosObj elem, ASInt32 count);
 	int CalcMaxElement();
 	void CalcElements(PDSElement element, int& count);
-	bool ParseLabels();
-	bool ParseLabelsElement(PDEElement elem);
-	void ParseLayerLabel(PDEElement elem, std::string& layerName);
-	bool FindStartPoint4Labels(const char* pattern, PDEElement elem);
+	bool ParseStream();
+	bool ParseStreamElement(PDEElement elem);
+	void PaseStreamDestination(std::string& name, std::string& parent, PDEElement elem);
 protected:
-	std::map< std::string, std::vector<int> > m_featuresWithColor;
-	std::set <std::string> m_labelsWithColor;
-	std::set <std::string> m_missedNodes;
+	std::map< std::string, std::vector<SFeatureOrDecore> > m_featuresWithColor;
+	std::map <std::string, std::string> m_missedNodes;
 	bool m_isInit;
 	bool m_isOpen;
 	bool m_hasLabels;
