@@ -105,13 +105,13 @@ int CGeoPdfColorFinder::CalcMaxElement()
 	return retVal;
 }
 
-bool CGeoPdfColorFinder::FindFeatures4Color(ColorType colorType, std::vector<long> components)
+bool CGeoPdfColorFinder::FindFeatures4Color(ColorType colorType, std::vector<long> components, SymbolParts symbolParts)
 {
 	if ((!m_isInit) || (!m_isOpen))
 		return false;
 	m_lastError = MyErrorCodes::NoError; 
 	m_myErrorCode = MyErrorCodes::NoError;
-	m_hasLabels = false;
+	m_symbolParts = symbolParts;
 	m_featuresWithColor.clear();
 	m_missedNodes.clear();
 	if (!SetColors(colorType, components))
@@ -326,6 +326,10 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(child));
 		PDEGraphicState grState;
 		bool checkStroke = true, checkFill = true;
+		if (m_symbolParts == SymbolParts::FillOnly)
+			checkStroke = false;
+		if (m_symbolParts == SymbolParts::OutlineOnly)
+			checkFill = false;
 		if (type == kPDEText)
 		{
 			PDEText text = reinterpret_cast<PDEText>(child);
@@ -333,6 +337,8 @@ bool CGeoPdfColorFinder::ParseTreeElement(PDSElement element)
 		}
 		else
 		{
+			if (m_symbolParts == SymbolParts::TextOnly)
+				continue;
 			ASBool hasG = PDEElementHasGState(child, &grState, sizeof(PDEGraphicState));
 			if (!hasG)
 				continue;
@@ -558,6 +564,11 @@ void CGeoPdfColorFinder::PaseStreamDestination(std::string& name, std::string& p
 		PDEType type = (PDEType)PDEObjectGetType(reinterpret_cast<PDEObject>(kid));
 		PDEGraphicState grState;
 		bool checkStroke = true, checkFill = true;
+		if (m_symbolParts == SymbolParts::FillOnly)
+			checkStroke = false;
+		if (m_symbolParts == SymbolParts::OutlineOnly)
+			checkFill = false;
+
 		if (type == kPDEText)
 		{
 			PDEText text = reinterpret_cast<PDEText>(kid);
@@ -565,6 +576,8 @@ void CGeoPdfColorFinder::PaseStreamDestination(std::string& name, std::string& p
 		}
 		else
 		{
+			if (m_symbolParts == SymbolParts::TextOnly)
+				continue;
 			ASBool hasG = PDEElementHasGState(kid, &grState, sizeof(PDEGraphicState));
 			if (!hasG)
 				continue;

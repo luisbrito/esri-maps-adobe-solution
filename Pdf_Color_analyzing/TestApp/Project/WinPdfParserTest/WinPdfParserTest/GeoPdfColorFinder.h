@@ -42,7 +42,7 @@ public:
 	void SetCancelTracker(ICancel* pCT){m_canceltTracker = pCT;}
 	void GetErrorMessage(std::string& mess);
 	bool OpenPdf(const char* path);
-	bool FindFeatures4Color(ColorType colorType, std::vector<long> components);
+	bool FindFeatures4Color(ColorType colorType, std::vector<long> components, SymbolParts symbolParts);
 	void ClosePdfFile()
 	{
 		if (m_isOpen)
@@ -69,7 +69,7 @@ protected:
 	std::map <std::string, std::string> m_missedNodes;
 	bool m_isInit;
 	bool m_isOpen;
-	bool m_hasLabels;
+	SymbolParts m_symbolParts;
 	PDDoc m_Doc;
 	ASErrorCode m_lastError;
 	int m_myErrorCode;

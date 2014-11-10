@@ -38,5 +38,13 @@ enum MyErrorCodes
 	WrongColorInFeature
 };
 
+enum SymbolParts
+{
+	AllParts,
+	OutlineOnly,
+	FillOnly,
+	TextOnly
+};
+
 ASErrorCode GetPdsTitleAsString(PDSElement elem, std::string& res);
 ASErrorCode GetObjId(PDSElement elem, std::string& value);

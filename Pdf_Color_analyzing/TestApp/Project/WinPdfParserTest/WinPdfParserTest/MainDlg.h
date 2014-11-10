@@ -29,6 +29,7 @@ private:
 struct MY_THREAD_PARAMS
 {
 	ColorType m_colorType;
+	SymbolParts m_symbolParts;
 	std::vector<long> m_colorComponents;
 	std::string m_path;
 	std::string m_mess;
@@ -58,7 +59,7 @@ DWORD WINAPI MyThreadFunction( LPVOID lpParam )
 		return 2;
 	}
 	finder.SetCancelTracker(pParams->m_pCancel);
-	if (finder.FindFeatures4Color(pParams->m_colorType, pParams->m_colorComponents))
+	if (finder.FindFeatures4Color(pParams->m_colorType, pParams->m_colorComponents, pParams->m_symbolParts))
 	{
 		pParams->m_results.clear();
 		std::vector<std::string> lays;
@@ -207,9 +208,9 @@ public:
 		CenterWindow();
 
 		// set icons
-		HICON hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
+		HICON hIcon = AtlLoadIconImage(IDI_ICON1, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
 		SetIcon(hIcon, TRUE);
-		HICON hIconSmall = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON));
+		HICON hIconSmall = AtlLoadIconImage(IDI_ICON1, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON));
 		SetIcon(hIconSmall, FALSE);
 
 		HWND hwndColorType = GetDlgItem(IDC_CLOLOR_TYPE_CMB);
@@ -218,6 +219,7 @@ public:
 		HWND hwndLayers = GetDlgItem(IDC_LAYERS_CMB);
 		HWND hwndFeatures = GetDlgItem(IDC_LIST1);
 		HWND hwndSave = GetDlgItem(IDC_SAVE_BTN);
+		HWND hwndSymbolParts = GetDlgItem(IDC_SYMBOL_PART_CMB);
 
 		m_comboColorType.Attach(hwndColorType);
 		m_editInFile.Attach(hwndInfIle);
@@ -225,17 +227,24 @@ public:
 		m_comboLayers.Attach(hwndLayers);
 		m_lbFeatures.Attach(hwndFeatures);
 		m_buttonSave.Attach(hwndSave);
+		m_comboSymbolParts.Attach(hwndSymbolParts);
 
 		m_comboColorType.AddString(_T("RGB"));
 		m_comboColorType.AddString(_T("CMYK"));
 		m_comboColorType.SetCurSel(0);
+
+		m_comboSymbolParts.AddString(_T("ALL_PARTS"));
+		m_comboSymbolParts.AddString(_T("OUTLINE_ONLY"));
+		m_comboSymbolParts.AddString(_T("FILL_ONLY"));
+		m_comboSymbolParts.AddString(_T("TEXT_ONLY"));
+		m_comboSymbolParts.SetCurSel(0);
 
 		return TRUE;
 	}
 
 	LRESULT OnBrowse(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CFileDialog dlg(TRUE);
+		CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,_T("PDF files\0*.pdf\0\0"),this->m_hWnd);
 		int res = dlg.DoModal();
 		if (res == IDOK)
 		{
@@ -300,6 +309,11 @@ public:
 		m_comboColorType.GetLBText(sel, cType);
 
 		ColorType colorSpace = ColorType::rgb;
+		SymbolParts symbolParts = SymbolParts::AllParts;
+
+		CString sParts;
+		sel = m_comboSymbolParts.GetCurSel();
+		m_comboSymbolParts.GetLBText(sel, sParts);
 
 		if (cType.CompareNoCase(_T("CMYK")) == 0)
 			colorSpace = ColorType::cmyk;
@@ -367,11 +381,19 @@ public:
 		std::string ss(buff);
 		delete[] buff;
 
+		if (sParts.CompareNoCase(_T("OUTLINE_ONLY")) == 0)
+			symbolParts = SymbolParts::OutlineOnly;
+		else if (sParts.CompareNoCase(_T("FILL_ONLY")) == 0)
+			symbolParts = SymbolParts::FillOnly;
+		else if (sParts.CompareNoCase(_T("TEXT_ONLY")) == 0)
+			symbolParts = SymbolParts::TextOnly;
+
 		m_ress.clear();
 		SMyThreadParams sParams;
 		sParams.m_colorType = colorSpace;
 		sParams.m_colorComponents = comps;
 		sParams.m_path = ss;
+		sParams.m_symbolParts = symbolParts;
 		CMyProgressDialog startDlg;
 		startDlg.m_pParams = &sParams;
 
@@ -474,6 +496,7 @@ public:
 	CEdit m_editInFile;
 	CEdit m_editComponents;
 	CComboBox m_comboColorType;
+	CComboBox m_comboSymbolParts;
 	CComboBox m_comboLayers;
 	CListBox m_lbFeatures;
 	CButton m_buttonSave;

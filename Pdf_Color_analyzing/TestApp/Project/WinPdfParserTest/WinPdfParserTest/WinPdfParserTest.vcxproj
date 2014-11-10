@@ -141,6 +141,7 @@
     <ResourceCompile Include="WinPdfParserTest.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\Dthought-Creative-Sense-2-Adobe-Acrobat-Professional.ico" />
     <Image Include="res\WinPdfParserTest.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
