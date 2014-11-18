@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="EsriMap4Ai">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="LasModified" type="xs:string" />
+        <xs:element name="Author" type="xs:string" />
+        <xs:element name="BaseMap">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="IncludeInOutput">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute name="resolution" type="xs:unsignedShort" use="required" />
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="SpatialReference">
+                <xs:complexType>
+                  <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="ViewExtent">
+                <xs:complexType>
+                  <xs:attribute name="top" type="xs:decimal" use="required" />
+                  <xs:attribute name="left" type="xs:decimal" use="required" />
+                  <xs:attribute name="bottom" type="xs:decimal" use="required" />
+                  <xs:attribute name="right" type="xs:decimal" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Scale">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:unsignedInt" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string" use="required" />
+            <xs:attribute name="url" type="xs:string" use="required" />
+            <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Layers">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Layer">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="LayerUrl" type="xs:string" />
+                    <xs:element name="LayerName" type="xs:string" />
+                    <xs:element name="Sublayers">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="Sublayer">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Include" type="xs:string" />
+                              </xs:sequence>
+                              <xs:attribute name="id" type="xs:unsignedInt" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="type" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OutputProperties">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Extent">
+                <xs:complexType>
+                  <xs:attribute name="left" type="xs:decimal" use="required" />
+                  <xs:attribute name="top" type="xs:decimal" use="required" />
+                  <xs:attribute name="right" type="xs:decimal" use="required" />
+                  <xs:attribute name="bottom" type="xs:decimal" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Resolution" type="xs:unsignedShort" />
+              <xs:element name="Size">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Units" type="xs:string" />
+                    <xs:element name="Height" type="xs:unsignedInt" />
+                    <xs:element name="Width" type="xs:unsignedInt" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Format" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

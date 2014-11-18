@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EsriMap4Ai name="MyMap">
+  <LasModified>mm/dd/yyyy</LasModified>
+  <Author>Clint Loveman</Author>
+  <BaseMap type="topo" url="http://esri.com" id="1234567890">
+    <IncludeInOutput resolution="1200">yes</IncludeInOutput>
+    <SpatialReference id="1012"/>
+    <ViewExtent top="12.355" left="123.45" bottom="12.345" right="123.45"/>
+    <Scale value="100000"/>
+  </BaseMap>
+  <Layers>
+    <Layer type="FS">
+      <LayerUrl>esri.com</LayerUrl>
+      <LayerName>The main layer</LayerName>
+      <Sublayers>
+        <Sublayer id="0">
+          <Include>yes</Include>
+        </Sublayer>
+        <Sublayer id="1">
+          <Include>no</Include>
+        </Sublayer>
+      </Sublayers>
+    </Layer>
+  </Layers>
+  <OutputProperties>
+    <Extent left="122.3" top="1223.4" right="123." bottom="1223.4"/>
+    <Resolution>1200</Resolution>
+    <Size>
+      <Units>cm</Units>
+      <Height>20</Height>
+      <Width>10</Width>
+    </Size>
+    <Format>JPEG</Format>
+  </OutputProperties>
+</EsriMap4Ai>

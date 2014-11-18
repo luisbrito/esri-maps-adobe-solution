@@ -1,0 +1,55 @@
+{  
+  "EsriMap4Ai":{  
+    "name":"MyMap",
+    "LastModified":"mm/dd/yyyy",
+    "Author":"Clint Loveman",
+    "BaseMap":{  
+      "type":"topo",
+      "URL":"esri.com",
+      "ID":"1234567890",
+      "SpatialReference":{  
+        "id":"1012"
+      },
+      "IncludeInOutput":"yes",
+      "OutputResolution":1200,
+      "ViewExtent":{  
+        "left":123,
+        "top":123,
+        "right":123,
+        "bottom":123
+      },
+      "Scale":100000
+    },
+    "Layers":[  
+      {  
+        "name":"The main layer",
+        "LayerUrl":"esri.com",
+        "Sublayers":[  
+          {  
+            "id":0,
+            "include":"yes"
+          },
+          {  
+            "id":1,
+            "include":"no"
+          }
+        ]
+      }
+    ],
+    "OutputProperties":{  
+      "Extent":{  
+        "left":123,
+        "top":123,
+        "right":123,
+        "bottom":123
+      },
+      "Resolution":1200,
+      "Size":{  
+        "units":"cm",
+        "height":20,
+        "width":10
+      },
+      "Format":"JPEG"
+    }
+  }
+}
