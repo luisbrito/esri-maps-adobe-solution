@@ -3,14 +3,27 @@
 <html>
 <head>
 <meta charset="utf-8">
+<script type=”text/javascript”>window.nodeRequire=window.require && window.require=undefined</script>
+<script type=”text/javascript”>window.module = undefined</script> 
+ 	<script>
+		var dojoConfig = {
+			async : true,
+			//baseUrl: "/js/",
+/*			tlmSiblingOfDojo : false,
+			//isDebug : 0,
+			packages : [{
+				name : "js",
+				location : "/../js"
+			}]*/
+			};
+	</script><script src="http://js.arcgis.com/3.10/"></script>
 <script src="./ext.js"></script>
-<script src="./lib/CSInterface-4.0.0.js"></script>
 
 <title>AuthorizeDialog</title>
 </head>
 
 <body onLoad="onLoaded()">
-Redirecting to the ArcGIS authorization page.
+Redirecting to the ArcGIS authorization page
 
 <div id="messages"></div>
 </body>

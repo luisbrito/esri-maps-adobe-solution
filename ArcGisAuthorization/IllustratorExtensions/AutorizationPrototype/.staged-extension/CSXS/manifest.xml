@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ExtensionManifest Version="4.0" ExtensionBundleId="com.example.AutorizationPrototype" ExtensionBundleVersion="1.0.0"
+<ExtensionManifest Version="5.0" ExtensionBundleId="com.example.AutorizationPrototype" ExtensionBundleVersion="1.0.0"
 		ExtensionBundleName="AutorizationPrototype" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
 		<Extension Id="com.example.AutorizationPrototype.dialog" Version="1.0" />
@@ -8,13 +8,13 @@
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
-			<Host Name="ILST" Version="[17.0,17.9]" />
+			<Host Name="ILST" Version="[18.0,18.9]" />
 		</HostList>
 		<LocaleList>
 			<Locale Code="All" />
 		</LocaleList>
 		<RequiredRuntimeList>
-			<RequiredRuntime Name="CSXS" Version="4.0" />
+			<RequiredRuntime Name="CSXS" Version="5.0" />
 
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
@@ -23,6 +23,9 @@
 			<DispatchInfo >
 				<Resources>
 				<MainPath>./dialog.html</MainPath>
+				<CEFCommandLine>
+					<Parameter>--nodejs-disabled</Parameter>
+				</CEFCommandLine>
 				</Resources>
 				<Lifecycle>
 					<AutoVisible>true</AutoVisible>
