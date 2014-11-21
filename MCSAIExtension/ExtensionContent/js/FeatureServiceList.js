@@ -1,5 +1,7 @@
-define(["dojo/_base/array", "dojo/_base/lang", "dojo/query", "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct", "esri/request", "js/ItemList"],
-function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
+define(["dojo/_base/array", "dojo/_base/lang",
+        "dojo/query", "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct",
+        "esri/IdentityManager", "esri/Credential","esri/request", "js/ItemList"],
+function (array, lang, query, dom, on, domClass, domConstruct, idManager, Credential, esriRequest) {
 
     FServiceList = function (id, parentNode) {
         this.parentElement = parentNode;
@@ -73,6 +75,9 @@ function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
 
             // thumb is the URL of a raster imge with preview
             var thumb = 'http://www.arcgis.com/sharing/rest/content/items/' + service.id + '/info/' + service.thumbnail;
+            var cred = idManager.findCredential(thumb);
+            thumb += '?token=';
+            thumb += cred.token;
             domConstruct.create('img', { src: thumb, className: 'layerImg' }, serviceNode);
 
             // Add <span> with title of found feature service 
@@ -106,8 +111,13 @@ function (array, lang, query, dom, on, domClass, domConstruct, esriRequest) {
         };
 
         this.appendService = function (service, i) {
+/*            var cred = idManager.findCredential(service.url);
+            var tk = "";
+            if (cred != null)
+            	tk = cred.token;*/
             var serviceRequest = esriRequest({
-                url: service.url + "?f=pjson",
+                //url: service.url + "?token=" + tk + "&f=pjson",
+            	url: service.url + "?f=pjson",
                 handleAs: "json",
                 callbackParamName: "callback"
             });

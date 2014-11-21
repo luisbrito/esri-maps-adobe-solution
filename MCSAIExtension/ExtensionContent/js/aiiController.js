@@ -537,7 +537,7 @@ define([
     	var webMap = {
     		"mapOptions": {},
     		"operationalLayers": [],
-    		"baseMap": [],
+    		"baseMap": {},
     		"exportOptions": {},
     		"layoutOptions": {}
     	};
@@ -560,8 +560,11 @@ define([
     			webMap.baseMap.baseMapLayers = [opLayer];
     			webMap.baseMap.title = map.getBasemap();
     		}
-
-    		webMap.operationalLayers.push( opLayer );
+    		else{
+    			if (token != "")
+    				opLayer.token = token;
+    			webMap.operationalLayers.push( opLayer );
+    		}
     		
     	} );
 
@@ -618,7 +621,7 @@ define([
 			}, function ( error ) {
 				dom.byId('downloadStatus').innerHTML = '';
 				dom.byId("prg_container").style.display="none";
-				alert( "Could not export feature service" );
+				alert( "Could not export feature service: " + error.message );
 			} );
 
     }

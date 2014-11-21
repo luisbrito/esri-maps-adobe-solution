@@ -1,5 +1,7 @@
-define( ["dojo/_base/array", "dojo/_base/lang", "dojo/query", "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct", "esri/request", "esri/geometry/Extent", "js/ItemList"],
-function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Extent ) {
+define( ["dojo/_base/array", "dojo/_base/lang", "dojo/query",
+         "dojo/dom", "dojo/on", "dojo/dom-class", "dojo/dom-construct",
+         "esri/IdentityManager", "esri/Credential","esri/request", "esri/geometry/Extent", "js/ItemList"],
+function ( array, lang, query, dom, on, domClass, domConstruct, idManager, Credential, esriRequest, Extent ) {
 
 	LayerList = function ( id, parentNode ) {
 		this.parentElement = parentNode;
@@ -48,6 +50,9 @@ function ( array, lang, query, dom, on, domClass, domConstruct, esriRequest, Ext
 				labelText = labelText.replace( /_/g, ' ' );
 				layerNode = domConstruct.create( 'div', { id: "div" + li.id, className: 'layerItem', path: layer.service.url }, li );
 				var thumb = 'http://www.arcgis.com/sharing/rest/content/items/' + layer.service.id + '/info/' + layer.service.thumbnail;
+	            var cred = idManager.findCredential(thumb);
+	            thumb += '?token=';
+	            thumb += cred.token;
 				img = domConstruct.create( 'img', { src: thumb, className: 'layerImg' }, layerNode );
 				var label = domConstruct.create( 'span', { className: 'layerItemLabel', title: layer.service.description }, layerNode );
 				domConstruct.create( 'span', { innerHTML: labelText, title: layer.service.description }, label );
