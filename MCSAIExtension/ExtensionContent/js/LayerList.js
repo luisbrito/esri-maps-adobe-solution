@@ -44,7 +44,7 @@ function ( array, lang, query, dom, on, domClass, domConstruct, idManager, Crede
 
 			var layerNode;
 			// thumb is the URL of a raster imge with preview
-			if ( layer.service != null ) {
+			//if ( layer.service != null ) {
 				var labelText = layer.id;
 				li.id = "li" + labelText;
 				labelText = labelText.replace( /_/g, ' ' );
@@ -56,7 +56,7 @@ function ( array, lang, query, dom, on, domClass, domConstruct, idManager, Crede
 				img = domConstruct.create( 'img', { src: thumb, className: 'layerImg' }, layerNode );
 				var label = domConstruct.create( 'span', { className: 'layerItemLabel', title: layer.service.description }, layerNode );
 				domConstruct.create( 'span', { innerHTML: labelText, title: layer.service.description }, label );
-			}
+			/*}
 			else {
 				var labelText = "BaseLayer";
 				li.id = "li" + labelText;
@@ -65,7 +65,7 @@ function ( array, lang, query, dom, on, domClass, domConstruct, idManager, Crede
 				var label = domConstruct.create( 'span', { className: 'layerItemLabel', title: layer.description }, layerNode );
 				domConstruct.create( 'span', { innerHTML: labelText, title: layer.description }, label);
 				lastStyle = layerNode.style.backgroundColor;
-			}
+			}*/
 			if ( findLi( li.id, me ) != null )
 				return;
 
@@ -133,14 +133,14 @@ function ( array, lang, query, dom, on, domClass, domConstruct, idManager, Crede
 			for ( var idx = 0; idx < me.getCount() ; ++idx ) {
 				var li = me.itemList.children[idx];
 				var buttonsDiv = dom.byId( "btns" + li.id );
-				if ( idx == 0 )
+/*				if ( idx == 0 )
 					buttonsDiv.style.display = "none";
-				else {
+				else {*/
 					var upBtn = dom.byId( "up" + li.id );
 					var downBtn = dom.byId( "down" + li.id );
 
 					upBtn.style.display = "block";
-					if ( idx == 1 ) {
+					if ( idx == 0 ) {
 						upBtn.style.display = "none";
 					}
 
@@ -148,10 +148,10 @@ function ( array, lang, query, dom, on, domClass, domConstruct, idManager, Crede
 
 					if ( idx == me.getCount() - 1 ) {
 						downBtn.style.display = "none";
-						if ( idx == 1 )
+						if ( idx == 0 )
 							upBtn.style.display = "none";
 					}
-				}
+				//}
 			}
 
 		};
