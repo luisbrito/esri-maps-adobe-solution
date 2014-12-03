@@ -43,6 +43,7 @@ define([
     //var mapServerUrl = "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer";
     var portalProps = null;
     var aoiExtent = null;
+    var downloadExtent = null;
     var aoiSignX = null;
     var aoiSignY = null;
     var oaiGraphic = null;
@@ -401,7 +402,7 @@ define([
     	else if (outUnits == "Inches"){
     		wInt *= 39.3700787;
     		hInt *= 39.3700787;
-    		mes = "'";
+    		mes = "\"";
     	}
     	else if (outUnits == "Millimeters"){
     		wInt *= 1000;
@@ -500,9 +501,9 @@ define([
     function startDownLoadMap()
     {
     	dom.byId("prg_container").style.display="block";
-    	var ext = null;
+    	downloadExtent = null;
     	if (aoiExtent){
-    		ext = aoiExtent;
+    		downloadExtent = aoiExtent;
     	}
     	else {
 	    	var addLs = map.graphicsLayerIds;
@@ -525,11 +526,11 @@ define([
 	    			ext = ext.union(ex);
 	    	}
     	}
-    	if (ext != null)
-    		map.setExtent(ext, true).then(function(res){
+    	/*if (ext != null)
+    		map.setExtent(ext, false).then(function(res){
     			downloadMap();
     		});
-    	else
+    	else*/
     		downloadMap();
     }
 
@@ -545,7 +546,10 @@ define([
     	dom.byId('downloadStatus').innerHTML = 'Downloading the map...';
 
     	// Define layer in service always 0. Should be discussed 
-    	webMap.mapOptions.extent = map.extent.toJson();
+    	var ext = downloadExtent;
+    	if (ext == null)
+    		ext = map.extent;
+    	webMap.mapOptions.extent = ext.toJson();
 
     	// Defining layers with feature service to be exported
     	array.forEach( map.getLayersVisibleAtScale(), function ( mapLayer, idx ) {
@@ -567,7 +571,6 @@ define([
     		}
     		
     	} );
-
     	// Export options. I chose these just from example
     	var res = parseInt(dom.byId( 'outMap_DPI' ).value);
     	var sc = 0;
@@ -582,8 +585,8 @@ define([
 	    	}
 	    	sc = parseInt(ssc);
     	}
-    	var wInt = map.extent.getWidth()/sc;
-    	var hInt = map.extent.getHeight()/sc;
+    	var wInt = ext.getWidth()/sc;
+    	var hInt = ext.getHeight()/sc;
 		wInt *= (39.3700787*res);
 		hInt *= (39.3700787*res);    		
     	var valWidth = wInt.toFixed(0);
@@ -608,6 +611,7 @@ define([
     	} );
     	pdfRequest.then(
 			function ( response ) {
+				downloadExtent = null;
 				// success request
 				dom.byId( 'downloadStatus' ).innerHTML = '';
 				//var sc = map.getScale();
@@ -619,6 +623,7 @@ define([
 						dom.byId('downloadStatus').innerHTML = '';
 					} );
 			}, function ( error ) {
+				downloadExtent = null;
 				dom.byId('downloadStatus').innerHTML = '';
 				dom.byId("prg_container").style.display="none";
 				alert( "Could not export feature service: " + error.message );
