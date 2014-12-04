@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HTMLWidget name="ESRI Map Widget" formatNumber="2"
+	localization="none" creator="V. I. Kozlov"
+	minWidth="300" minHeight="300"
+	 defaultWidth="300" defaultHeight="300"
+	 isResizable="true">
+	<parameters>
+		<text name="titleText" defaultValue="ESRI Headquarters" label="Title: " />
+		<number name="centerLat" digitsPrecision="2" step="1"
+			min="-90" max="90" snap="0.01" defaultValue="34.05"
+			label="Latitude of center: "/>
+		<number name="centerLong" digitsPrecision="2" step="1"
+			min="-180" max="180" snap="0.01" defaultValue="-117.2"
+			label="Longitude of center: "/>
+		<number name="zoomLevel" step="1"
+			min="0" max="100" snap="1" defaultValue="13"
+			label="Zoom: "/>
+		<bool name="drawPoint" label="Draw center point" defaultValue="yes">
+			<trueVal value="yes"/>
+			<falseVal value="no" />
+		</bool>
+		<list name="baseMap" label="Choose Base Map:" defaultValue="topo">
+			<value name="topo" label="Topographic"/>
+			<value name="satellite" label="Satellite"/>
+			<value name="hybrid" label="Satellite with labbels"/>
+			<value name="streets" label="Streets"/>
+			<value name="gray" label="Gray"/>
+			<value name="oceans" label="Oceans"/>
+			<value name="national-geographic" label="National Geographic"/>
+			<value name="osm" label="Open Street Map"/>
+		</list>
+		<builtIn name="itemUID"/>
+	</parameters>
+	<headHTML>
+<![CDATA[
+<link rel="stylesheet" href="http://js.arcgis.com/3.11/dijit/themes/claro/claro.css">
+<link rel="stylesheet" href="http://js.arcgis.com/3.11/esri/css/esri.css">
+<style>
+#{param_itemUID}{border:ridge}
+</style>
+<script src="http://js.arcgis.com/3.11/"></script>
+<script>
+  var map;
+
+  require(["esri/map", "esri/geometry/Point", "esri/Color",
+  "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol", "esri/graphic",
+  "dojo/domReady!"], function(Map, Point, Color,
+        SimpleMarkerSymbol, SimpleLineSymbol, Graphic) {
+	map = new Map("map", {
+	  basemap: "{param_baseMap}",
+	  center: [{param_centerLong}, {param_centerLat}], // longitude, latitude
+	  zoom: {param_zoomLevel}
+	});
+	map.on("load", mapLoaded);
+	function mapLoaded(){
+		var shouldDraw = "{param_drawPoint}";
+		if (shouldDraw == "yes")
+		{
+			var sym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_DIAMOND,
+				16, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,0]), 2),
+				new Color([255,0,0]));
+			var p = new Point({param_centerLong},{param_centerLat});
+			map.graphics.add(new Graphic(p, sym));
+		}
+	}
+  });
+</script>
+]]>
+	</headHTML>
+	<pageItemHTML>
+<![CDATA[
+<div style="border: double">{param_titleText}</div>
+<div id="map">
+</div>
+]]>
+	</pageItemHTML>
+
+</HTMLWidget>
