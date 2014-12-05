@@ -17,8 +17,15 @@
 			label="Zoom: "/>
 		<bool name="drawPoint" label="Draw center point" defaultValue="yes">
 			<trueVal value="yes"/>
-			<falseVal value="no" />
+			<falseVal value="no" disableOptions="pointSymbol"/>
 		</bool>
+		<list name="pointSymbol" label="Choose Marker Symbol for Center Point:" defaultValue="STYLE_CIRCLE">
+			<value name="STYLE_CIRCLE" label="Circle"/>
+			<value name="STYLE_CROSS" label="Cross"/>
+			<value name="STYLE_DIAMOND" label="Diamond"/>
+			<value name="STYLE_SQUARE" label="Square"/>
+			<value name="STYLE_X" label="Diagonal cross"/>
+		</list>
 		<list name="baseMap" label="Choose Base Map:" defaultValue="topo">
 			<value name="topo" label="Topographic"/>
 			<value name="satellite" label="Satellite"/>
@@ -56,7 +63,7 @@
 		var shouldDraw = "{param_drawPoint}";
 		if (shouldDraw == "yes")
 		{
-			var sym = new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_DIAMOND,
+			var sym = new SimpleMarkerSymbol(SimpleMarkerSymbol.{param_pointSymbol},
 				16, new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,new Color([0,255,0]), 2),
 				new Color([255,0,0]));
 			var p = new Point({param_centerLong},{param_centerLat});
