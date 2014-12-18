@@ -4,181 +4,65 @@
 <meta charset="utf-8">
 <title>List of layers in the map</title>
 <script type="text/javascript">
-	var currentSelection = null;
-	function selectItem(ev)
+		
+	function allowDrop(ev)
 	{
-		var upButton = document.getElementById("upButton");
-		var delButton = document.getElementById("delButton");
-		var downButton = document.getElementById("downButton");
-		if (currentSelection == ev.currentTarget.attributes.id.value)
-			return;
-		if (currentSelection == null) 
-		{
-			currentSelection = ev.currentTarget.id;
-			ev.currentTarget.className="selected";
-		}
-		else
-		{
-			var curDiv = document.getElementById(currentSelection);
-			curDiv.className = "unselected";
-			ev.currentTarget.className="selected";
-			currentSelection = ev.currentTarget.id;
-		}
-		delButton.disabled=false;
-		if (ev.currentTarget.attributes.prevItem.value == "null")
-		{
-			upButton.disabled=true;
-		}
-		else
-		{
-			upButton.disabled=false;
-		}
-		if (ev.currentTarget.attributes.nextItem.value == "null")
-		{
-			downButton.disabled=true;
-		}
-		else
-		{
-			downButton.disabled=false;
-		}
+		 ev.preventDefault();
 	}
 	
-	function moveUp()
+	function drag(ev)
 	{
-		var twoItem = document.getElementById(currentSelection);
-		var oneItem = document.getElementById(twoItem.attributes.prevItem.value);
-		
-		var oldNext2 = twoItem.attributes.nextItem.value;
-		var oldPrev1 = oneItem.attributes.prevItem.value;
-		
-		twoItem.parentNode.insertBefore(twoItem, oneItem);
-		
-		twoItem.attributes.prevItem.value = oldPrev1;
-		twoItem.attributes.nextItem.value = oneItem.id;
-		oneItem.attributes.prevItem.value = twoItem.id;
-		oneItem.attributes.nextItem.value = oldNext2;
-		if (oldPrev1 == "null")
-		{
-			document.getElementById("upButton").disabled = true;
-		}
-		else
-		{
-			var oldPrev = document.getElementById(oldPrev1);
-			oldPrev.attributes.nextItem.value = twoItem.id;
-		}
-		if (oldNext2 == "null")
-		{
-			document.getElementById("downButton").disabled = false;
-		}
-		else
-		{
-			var oldNext = document.getElementById(oldNext2);
-			oldNext.attributes.prevItem.value = oneItem.id;
-		}
+		ev.dataTransfer.setData("text", ev.target.id);
 	}
 	
-	function moveDown()
+	function drop(ev)
 	{
-		var oneItem = document.getElementById(currentSelection);
-		var twoItem = document.getElementById(oneItem.attributes.nextItem.value);
-		
-		var oldNext2 = twoItem.attributes.nextItem.value;
-		var oldPrev1 = oneItem.attributes.prevItem.value;
-		
-		
-		twoItem.parentNode.insertBefore(twoItem, oneItem);
-		
-		twoItem.attributes.prevItem.value = oldPrev1;
-		twoItem.attributes.nextItem.value = oneItem.id;
-		oneItem.attributes.prevItem.value = twoItem.id;
-		oneItem.attributes.nextItem.value = oldNext2;
-		if (oldPrev1 == "null")
-		{
-			document.getElementById("upButton").disabled = false;
-		}
-		else
-		{
-			var oldPrev = document.getElementById(oldPrev1);
-			oldPrev.attributes.nextItem.value = twoItem.id;
-		}
-		if (oldNext2 == "null")
-		{
-			document.getElementById("downButton").disabled = true;
-		}
-		else
-		{
-			var oldNext = document.getElementById(oldNext2);
-			oldNext.attributes.prevItem.value = oneItem.id;
-		}		
+		ev.preventDefault();
+		var data = document.getElementById(ev.dataTransfer.getData("text"));
+		ev.currentTarget.parentNode.insertBefore(data, ev.currentTarget);
 	}
 	
-	function delItem()
+	function dropDelete(ev)
 	{
-		var curObj = document.getElementById(currentSelection);
-		
-		var nextId = "null";
-		var nextObj = null;
-		var prevId = "null";
-		var prevObj = null;
-		
-		if (curObj.attributes.nextItem.value != "null")
-		{
-			nextObj = document.getElementById(curObj.attributes.nextItem.value);
-			nextId = nextObj.id;
-		}
-		
-		if (curObj.attributes.prevItem.value != "null")
-		{
-			prevObj = document.getElementById(curObj.attributes.prevItem.value);
-			prevId = prevObj.id;
-		}
-		
-		curObj.parentNode.removeChild(curObj);
-		
-		if (nextObj != null)
-			nextObj.attributes.prevItem.value = prevId;
-		
-		if (prevObj != null)
-			prevObj.attributes.nextItem.value = nextId;
-			
-		currentSelection = null;
-		document.getElementById("downButton").disabled = true;
-		document.getElementById("upButton").disabled = true;
-		document.getElementById("delButton").disabled = true;
+		ev.preventDefault();
+		var data = document.getElementById(ev.dataTransfer.getData("text"));
+		data.parentNode.removeChild(data);
 	}
 </script>
 <style type="text/css">
 .unselected {background-color:#ffffff; border-style:solid;border-width:1px;}
-.selected {background-color:#8CDDF1; border-style:solid;border-width:1px;}
+.unselected:hover {background-color:#ddd; border-style:solid;border-width:1px;}
 </style>
 </head>
 
 <body>
 <div style="width:300px;border-style:solid;">
-	<div align="center" style="border-bottom:solid;">
-    	<button id="upButton" type="button" disabled onClick="moveUp();">Up</button>
-        <button id="downButton" type="button" disabled onClick="moveDown();">Down</button>
-        <button id="delButton" type="button" disabled onClick="delItem();">Delete</button>
+	<div align="center" style="border-bottom:solid;" ondragover="allowDrop(event)" ondrop="dropDelete(event)">
+    <img src="trash.jpg">Drop feature servise here to delete
 	</div>
-	<div style="height:250px;overflow-y: scroll">
-		<ul>
-			<div id="div1" class="unselected" nextItem="div2" prevItem="null" onClick="selectItem(event);">
-				<li><img src="http://www.arcgis.com/sharing/rest/content/items/57a3d8799b334bf4a88999f91285afc9/info/thumbnail/thumbnail.png?token=NIfMWIIMPodjn1cazhiOdzvQVWWDMixFp_iBNlfOiOzQuoDuM2L9gOqDZO2S-hxiTJ_ZxsfomeMaywESAhb3xUIFhoeBg0qZCKtC3CAZ1VRp4JSW_yIIABlucj5oVec9" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_PolyLine_1</li>
-				<ul>
+	<div id="qqq" style="height:250px;overflow-y: scroll">
+		<ul id ="vvv" style="list-style-type:none">
+			<div id="div1" draggable="true" class="unselected" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+				<li style="border-bottom:solid;border-width:1px;border-color:red;"><img src="arcgis32.png" width="42" height="42">FSTopo_Continental_PolyLine_1</li>
+				<ul style="list-style-type:none">
     				<li>Layer 1</li>
     				<li>Layer 2</li>
     			</ul>
 			</div>
-			<div id="div2" class="unselected" nextItem="div3" prevItem="div1" onClick="selectItem(event);">
-				<li><img src="http://www.arcgis.com/sharing/rest/content/items/a8d74af837094bb2b0118e6cba5b6c21/info/thumbnail/ago_downloaded.png?token=NIfMWIIMPodjn1cazhiOdzvQVWWDMixFp_iBNlfOiOzQuoDuM2L9gOqDZO2S-hxiTJ_ZxsfomeMaywESAhb3xUIFhoeBg0qZCKtC3CAZ1VRp4JSW_yIIABlucj5oVec9" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_Polygon_2</li>
+			<div draggable="true" id="div2" class="unselected" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+				<li style="border-bottom:solid;border-width:1px;border-color:red;"><img src="arcgis32.png" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_Polygon_2</li>
+                <ul style="list-style-type:none">
+                	<li>Layer 1</li>
+                </ul>
 			</div>
-			<div id="div3" class="unselected" nextItem="null" prevItem="div2" onClick="selectItem(event);">
-				<li><img src="http://www.arcgis.com/sharing/rest/content/items/77c647685039401fb54c6f7e146eb1d9/info/thumbnail/ago_downloaded.png?token=NIfMWIIMPodjn1cazhiOdzvQVWWDMixFp_iBNlfOiOzQuoDuM2L9gOqDZO2S-hxiTJ_ZxsfomeMaywESAhb3xUIFhoeBg0qZCKtC3CAZ1VRp4JSW_yIIABlucj5oVec9" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_Polygon_3</li>
-				<ul>
+			<div draggable="true" id="div3" class="unselected" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+				<li style="border-bottom:solid;border-width:1px;border-color:red;"><img src="arcgis32.png" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_Polygon_3</li>
+				<ul style="list-style-type:none">
     				<li>Layer 1</li>
     				<li>Layer 2</li>
     			</ul>
 			</div>
+            <div id = "lastToDrop" style="height:3px;" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
 		</ul>
 	</div>
 </div>
