@@ -30,40 +30,37 @@
 	}
 </script>
 <style type="text/css">
-.unselected {background-color:#ffffff; border-style:solid;border-width:1px;}
+.treeItem {border-style:solid;border-width:1px;border-color:black;font-family:Sans-serif;font-size:small;}
+.myTittle {background-color:#696969;color:White;font-size:larger;font-family:Sans-serif;}
+.mainItemTree {background-color:#696969;color:White;}
+.mainItemTree:hover {background-color:Gray;}
+.treeSubItem {position:relative;left:20px;}
 .unselected:hover {background-color:#ddd; border-style:solid;border-width:1px;}
 </style>
 </head>
 
-<body>
-<div style="width:300px;border-style:solid;">
-	<div align="center" style="border-bottom:solid;" ondragover="allowDrop(event)" ondrop="dropDelete(event)">
-    <img src="trash.jpg">Drop feature servise here to delete
-	</div>
+<body style="background-color:#696969;">
+<div style="width:300px;border-style:solid;background-color:#696969;">
+<div class="myTittle" align="center">Layers added to map</div>
 	<div id="qqq" style="height:250px;overflow-y: scroll">
-		<ul id ="vvv" style="list-style-type:none">
-			<div id="div1" draggable="true" class="unselected" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
-				<li style="border-bottom:solid;border-width:1px;border-color:red;"><img src="arcgis32.png" width="42" height="42">FSTopo_Continental_PolyLine_1</li>
-				<ul style="list-style-type:none">
-    				<li>Layer 1</li>
-    				<li>Layer 2</li>
-    			</ul>
+			<div id="div1" class="mainItemTree" draggable="true" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+				<div id="div1_1" class="treeItem"><img srs="down.png"><img src="arcgis32.png" width="16" height="16"> FSTopo_Continental_PolyLine_1</div>
+    				<div id="div_1_1" class="treeItem"><span class="treeSubItem">Layer 1<span></div>
+    				<div id="div1_1_2" class="treeItem"><span class="treeSubItem">Layer 2</span></div>
 			</div>
-			<div draggable="true" id="div2" class="unselected" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
-				<li style="border-bottom:solid;border-width:1px;border-color:red;"><img src="arcgis32.png" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_Polygon_2</li>
-                <ul style="list-style-type:none">
-                	<li>Layer 1</li>
-                </ul>
+			<div draggable="true" id="div2" class="mainItemTree" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+				<div id="div2_1" class="treeItem"><img src="arcgis32.png" width="16" height="16"> FSTopo_Continental_Polygon_2</div>
+                	<div id="div_2_1_1" class="treeItem"><span class="treeSubItem">Layer 1</span></div>
 			</div>
-			<div draggable="true" id="div3" class="unselected" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
-				<li style="border-bottom:solid;border-width:1px;border-color:red;"><img src="arcgis32.png" alt="(Here should be a thumb)" width="42" height="42">FSTopo_Continental_Polygon_3</li>
-				<ul style="list-style-type:none">
-    				<li>Layer 1</li>
-    				<li>Layer 2</li>
-    			</ul>
+			<div draggable="true" id="div3" class="mainItemTree" ondragstart="drag(event)" ondragover="allowDrop(event)" ondrop="drop(event)">
+				<div id="div3_1" class="treeItem"><img src="arcgis32.png" alt="(Here should be a thumb)" width="16" height="16">FSTopo_Continental_Polygon_3</div>
+    				<div id="div_3_1_1" class="treeItem"><span class="treeSubItem">Layer 1</span></div>
+    				<div id="div_3_1_2" class="treeItem"><span class="treeSubItem">Layer 2</span></div>
 			</div>
             <div id = "lastToDrop" style="height:3px;" ondragover="allowDrop(event)" ondrop="drop(event)"></div>
-		</ul>
+	</div>
+	<div align="right" style="position:relative;right:24px" ondragover="allowDrop(event)" ondrop="dropDelete(event)">
+    <img src="trash.jpg" width="16" height="16">
 	</div>
 </div>
 </body>
