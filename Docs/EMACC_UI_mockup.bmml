@@ -137,9 +137,9 @@
         <text>Define%20map%3A%20This%20shows%20the%20same%20dimentions%20as%20the%20box%20on%20the%20map%20does.%20However%20user%20can%20type%20is%20explict%20values%20%28width/height%29%20as%20well%20and%20constrain%20the%20proportions%20%28icon%29%20in%20the%20middle.%0A%20%0AI%20want%20the%20abilit%20to%20expeclilly%20set%20the%20width%20and%20height%20of%20the%20map.%20We%20need%20to%20user%20our%20existing%20service%20to%20to%20this%3A%20..this%20calculation/value%20should%20come%20from%20our%20POD%20rest%20endpoint%20%28calcualte%20extent%3A%20dynamic%20scale%29%0A%20%0Ahttp%3A//pod-ags-srv-1.esri.com%3A6080/arcgis/rest/services/mcs_pod/Calculators/GPServer/CalculateScale%0A%20</text>
       </controlProperties>
     </control>
-    <control controlID="38" controlTypeID="com.balsamiq.mockups::StickyNote" x="1724" y="95" w="264" h="297" measuredW="109" measuredH="123" zOrder="21" locked="false" isInGroup="-1">
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::StickyNote" x="1724" y="95" w="264" h="315" measuredW="109" measuredH="123" zOrder="21" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Download%20map%20will%20make%20a%20AI%20file%20export%20that%20includes%20%22vector%20base%20map%22%20layers%20and%20the%20feature%20services%20%28like%20we%20do%20now%29.%0A%20%0ASarah%20and%20I%20have%20been%20look%20into%20the%20differances%20between%20PDF%20and%20AI%20exports%20and%20we%20belive%20the%20AI%20file%20export%20that%20comes%20out%20of%20ArcGIS%20will%20get%20is%20closer%20to%20what%20we%20want%20in%20bring%20into%20AI.%20I%27ll%20provide%20more%20details%20on%20what%20to%20do%20with%20the%20AI%20file%20%28layer/graphic%20managment%29%20a%20little%20later.</text>
+        <text>Download%20map%20will%20make%20a%20AI%20file%20export%20that%20includes%20%22vector%20base%20map%22%20layers%20and%20the%20feature%20services%20%28like%20we%20do%20now%29.%0A%20%0ASarah%20and%20I%20have%20been%20look%20into%20the%20differances%20between%20PDF%20and%20AI%20exports%20and%20we%20belive%20the%20AI%20file%20export%20that%20comes%20out%20of%20ArcGIS%20will%20get%20is%20closer%20to%20what%20we%20want%20in%20bring%20into%20AI.%20%0A%20%0ASee%20detailed%20manual%20steps%20user%20perfroms%20in%20AI%20that%20we%20would%20like%20to%20automate%20in%20AI.%20They%20are%20in%20the%20doc%3A%0A%20%0AAI_Organization_Steps_WhenExportingAsIllustrator.docx</text>
       </controlProperties>
     </control>
     <control controlID="39" controlTypeID="com.balsamiq.mockups::SearchBox" x="1129" y="81" w="-1" h="-1" measuredW="142" measuredH="25" zOrder="22" locked="false" isInGroup="-1">
@@ -292,37 +292,37 @@
         <text>Field</text>
       </controlProperties>
     </control>
-    <control controlID="69" controlTypeID="com.balsamiq.mockups::CallOut" x="5" y="190" w="-1" h="-1" measuredW="36" measuredH="43" zOrder="46" locked="false" isInGroup="-1">
+    <control controlID="69" controlTypeID="com.balsamiq.mockups::CallOut" x="5" y="190" w="-1" h="-1" measuredW="45" measuredH="40" zOrder="46" locked="false" isInGroup="-1">
       <controlProperties>
         <text>1</text>
       </controlProperties>
     </control>
-    <control controlID="70" controlTypeID="com.balsamiq.mockups::CallOut" x="769" y="237" w="-1" h="-1" measuredW="37" measuredH="39" zOrder="47" locked="false" isInGroup="-1">
+    <control controlID="70" controlTypeID="com.balsamiq.mockups::CallOut" x="769" y="237" w="-1" h="-1" measuredW="36" measuredH="37" zOrder="47" locked="false" isInGroup="-1">
       <controlProperties>
         <text>2</text>
       </controlProperties>
     </control>
-    <control controlID="71" controlTypeID="com.balsamiq.mockups::CallOut" x="1952" y="160" w="-1" h="-1" measuredW="36" measuredH="43" zOrder="48" locked="false" isInGroup="-1">
+    <control controlID="71" controlTypeID="com.balsamiq.mockups::CallOut" x="1952" y="160" w="-1" h="-1" measuredW="41" measuredH="39" zOrder="48" locked="false" isInGroup="-1">
       <controlProperties>
         <text>3</text>
       </controlProperties>
     </control>
-    <control controlID="73" controlTypeID="com.balsamiq.mockups::CallOut" x="778" y="348" w="-1" h="-1" measuredW="38" measuredH="40" zOrder="49" locked="false" isInGroup="-1">
+    <control controlID="73" controlTypeID="com.balsamiq.mockups::CallOut" x="778" y="348" w="-1" h="-1" measuredW="45" measuredH="40" zOrder="49" locked="false" isInGroup="-1">
       <controlProperties>
         <text>5</text>
       </controlProperties>
     </control>
-    <control controlID="74" controlTypeID="com.balsamiq.mockups::CallOut" x="51" y="985" w="-1" h="-1" measuredW="35" measuredH="39" zOrder="50" locked="false" isInGroup="-1">
+    <control controlID="74" controlTypeID="com.balsamiq.mockups::CallOut" x="51" y="985" w="-1" h="-1" measuredW="39" measuredH="39" zOrder="50" locked="false" isInGroup="-1">
       <controlProperties>
         <text>6</text>
       </controlProperties>
     </control>
-    <control controlID="75" controlTypeID="com.balsamiq.mockups::CallOut" x="1464" y="69" w="-1" h="-1" measuredW="41" measuredH="39" zOrder="51" locked="false" isInGroup="-1">
+    <control controlID="75" controlTypeID="com.balsamiq.mockups::CallOut" x="1464" y="69" w="-1" h="-1" measuredW="36" measuredH="39" zOrder="51" locked="false" isInGroup="-1">
       <controlProperties>
         <text>4</text>
       </controlProperties>
     </control>
-    <control controlID="76" controlTypeID="com.balsamiq.mockups::CallOut" x="2084" y="7" w="-1" h="-1" measuredW="45" measuredH="40" zOrder="52" locked="false" isInGroup="-1">
+    <control controlID="76" controlTypeID="com.balsamiq.mockups::CallOut" x="2084" y="7" w="-1" h="-1" measuredW="36" measuredH="39" zOrder="52" locked="false" isInGroup="-1">
       <controlProperties>
         <text>8</text>
       </controlProperties>
