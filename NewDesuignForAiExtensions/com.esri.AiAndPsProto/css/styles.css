@@ -1,0 +1,129 @@
+/*Your styles*/
+
+ body {
+    margin: 10px;
+}
+
+
+#content {
+    margin-right:auto;
+    margin-left:auto;
+    vertical-align:middle;
+    width:100%;
+}
+
+
+#btn_test{
+    width: 100%;
+}
+
+#mainPanel{
+	width:300px;
+	height:570px;
+	border-style:ridge;
+	border-width:thick;
+	border-radius:5px;
+    position:relative;
+}
+
+.tabPane {
+	border-top:ridge medium;
+	border-top-radius:3px;
+	width:213px;
+	height:546px;
+	float:right;
+}
+
+.tabTitle {
+	height:15px;
+}
+
+.bgMainColor {
+}
+
+.bgTabColor {
+}
+
+.fnTabColor {
+    color:#F0F0F0;
+}
+
+.visibleTab {
+	display:block;
+}
+.toolBar {
+	position:absolute;
+	bottom:0px;
+	width:98%
+}
+.hiddenTab {
+	display:none;
+}
+
+.searchBorder {
+   border:none;
+}
+
+.inputWd {
+    width:50px;
+}
+
+.selectWidth {
+    width:100%;
+}
+
+.selected {
+	width:86px;
+	border-top:ridge medium;
+	border-top-radius:3px;
+	border-bottom:ridge medium;
+	border-bottom-radius:3px;
+	border-left:ridge medium;
+	border-left-radius:3px;
+}
+
+.unselected {
+	width:80px;
+	border-width:medium;
+	border-style:ridge;
+	border-radius:3px;
+}
+
+.bottomLine {
+    border-bottom:ridge;
+    height: 25px;
+    width: 100%;
+    vertical-align: middle;
+}
+
+
+
+/*
+Those classes will be edited at runtime with values specified
+by the settings of the CC application
+*/
+.hostFontColor{}
+.hostFontFamily{}
+.hostFontSize{}
+
+/*font family, color and size*/
+.hostFont{}
+/*background color*/
+.hostBgd{}
+/*lighter background color*/
+.hostBgdLight{}
+/*darker background color*/
+.hostBgdDark{}
+/*background color and font*/
+.hostElt{}
+
+
+.hostButton{
+    border:1px solid;
+    border-radius:2px;
+    height:20px;
+    vertical-align:bottom;
+    font-family:inherit;
+    color:inherit;
+    font-size:inherit;
+}

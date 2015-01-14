@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<link rel="stylesheet" href="http://js.arcgis.com/3.11/dijit/themes/claro/claro.css">
+<link rel="stylesheet" href="css/topcoat-desktop-dark.min.css"/>
+<link  id="hostStyle" rel="stylesheet" href="css/styles.css"/>
+<script>
+
+		var dojoConfig = {
+			async : true,
+			//baseUrl: "/js/",
+			tlmSiblingOfDojo : false,
+			//isDebug : 0,
+			};
+</script>
+<script src="http://js.arcgis.com/3.11/"></script>
+
+<script src="js/libs/CSInterface.js"></script>
+
+<script src="js/main.js"></script>
+
+<title></title>
+</head>
+
+<body class="hostElt">
+
+    <div id="content">        
+        <div id="mainPanel" class="hostElt bgMainColor">
+            <div id="tabSearch" class="tabPane bgMainColor bgTabColor visibleTab fnTabColor">
+                <div class="bgTabColor fnTabColor">
+                    <img src="./icons/search_black.png" style="position:relative;left:3px;top:3px;">
+                    <input type="search" placeholder="search for data ..." class="bgTabColor fnTabColor searchBorder">
+                </div>
+                <div>
+                    <select class="selectWidth bgTabColor fnTabColor searchBorder">
+                        <option value="vector">Vector Layers (Feature Service)</option>
+                        <option value="raster">Raster Layers (Image Service)</option>
+                    </select>
+                </div>
+                <div class="bottomLine bgMainColor" align="right">
+                    <label for="foundCount">Number of layers returned: </label><input id="foundCount" type="number" value="10" min="5" max="20" class="bgTabColor fnTabColor inputWd">
+                </div>
+                <div id="foundList" style="overflow-y:scroll; height:475px;">
+                </div>
+            </div>
+            <div id="tabMapLayers" class="tabPane bgMainColor bgTabColor hiddenTab fnTabColor">
+                <select class="selectWidth bgTabColor fnTabColor">
+                    <option value="topo">Topographic base map (Vector)</option>
+                    <option value="here">HERE base map (Vector)</option>
+                    <option value="osm">Open Street Map (Vector)</option>
+                    <option value="none">&lt;NONE&gt;</option>
+                </select>
+                <div id="mapLayerList" style="overflow-y:scroll; height:523px;">
+                </div>
+            </div>
+            <div id="tabSetting" class="tabPane  bgMainColor bgTabColor hiddenTab fnTabColor">
+                This pane is under construction
+            </div>
+            <div id="searchTitle" class="tabTitle selected bgMainColor bgTabColor fnTabColor">Search data</div>
+            <div id="mapLayersTitle" class="tabTitle unselected hostElt bgMainColor">Map Layers</div>
+            <div id="settingTitle" class="tabTitle unselected hostElt bgMainColor">Settings</div>
+            <div align="right" class="toolBar bgMainColor">
+                <img src="./icons/search_black.png" height="16" width="16">
+                <img src="./icons/Plas_black.png" height="16" width="16">
+                <img src="./icons/trash.jpg" height="16" width="16">
+            </div>
+        </div>      
+    </div>
+            
+</body>
+</html>
