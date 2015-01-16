@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 
-<link rel="stylesheet" href="http://js.arcgis.com/3.11/dijit/themes/claro/claro.css">
-<link rel="stylesheet" href="css/topcoat-desktop-dark.min.css"/>
+<link rel="stylesheet" href="http://js.arcgis.com/3.12/dijit/themes/claro/claro.css">
 <link  id="hostStyle" rel="stylesheet" href="css/styles.css"/>
 <script>
 
@@ -15,7 +14,7 @@
 			//isDebug : 0,
 			};
 </script>
-<script src="http://js.arcgis.com/3.11/"></script>
+<script src="http://js.arcgis.com/3.12/"></script>
 
 <script src="js/libs/CSInterface.js"></script>
 
@@ -30,11 +29,11 @@
         <div id="mainPanel" class="hostElt bgMainColor">
             <div id="tabSearch" class="tabPane bgMainColor bgTabColor visibleTab fnTabColor">
                 <div class="bgTabColor fnTabColor">
-                    <img src="./icons/search_black.png" style="position:relative;left:3px;top:3px;">
-                    <input type="search" placeholder="search for data ..." class="bgTabColor fnTabColor searchBorder">
+                    <img id="searchImg" src="./icons/search_black.png" style="position:relative;left:3px;top:3px;">
+                    <input id="searchTextId" type="search" placeholder="search for data ..." class="bgTabColor fnTabColor searchBorder">
                 </div>
                 <div>
-                    <select class="selectWidth bgTabColor fnTabColor searchBorder">
+                    <select id="resourceToFind" class="selectWidth bgTabColor fnTabColor searchBorder">
                         <option value="vector">Vector Layers (Feature Service)</option>
                         <option value="raster">Raster Layers (Image Service)</option>
                     </select>
@@ -62,9 +61,9 @@
             <div id="mapLayersTitle" class="tabTitle unselected hostElt bgMainColor">Map Layers</div>
             <div id="settingTitle" class="tabTitle unselected hostElt bgMainColor">Settings</div>
             <div align="right" class="toolBar bgMainColor">
-                <img src="./icons/search_black.png" height="16" width="16">
-                <img src="./icons/Plas_black.png" height="16" width="16">
-                <img src="./icons/trash.jpg" height="16" width="16">
+                <img src="./icons/search_black.png" class="imageSize">
+                <img src="./icons/Plas_black.png" class="imageSize">
+                <img src="./icons/trash.jpg" class="imageSize">
             </div>
         </div>      
     </div>

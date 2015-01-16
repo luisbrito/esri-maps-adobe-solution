@@ -96,6 +96,21 @@
     vertical-align: middle;
 }
 
+.imageSize {
+    width: 16px;
+    height: 16px;
+}
+
+.serviceItem {
+    padding: 3px;
+    border-style:solid;
+    border-width:1px;
+}
+
+.textMargs {
+    margin-left: 10px;
+    margin-bottom: 2px;
+}
 
 
 /*
