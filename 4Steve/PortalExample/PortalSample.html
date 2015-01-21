@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
+
 
 <link rel="stylesheet" href="http://js.arcgis.com/3.12/dijit/themes/claro/claro.css">
 <link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
@@ -35,8 +35,9 @@ require([
             return;
         }
         if (document.getElementById("typeCheck").checked)
-            searchText += "%20AND%20type%3A%22feature%20service%22";
-        var qParams = {q: searchText};
+            searchText += " AND type:\"feature service\"";
+
+            var qParams = {q:searchText, sortField:""};
         portal.queryItems(qParams).then(
             function (response){
                 addSearchResults(response.results);
@@ -60,7 +61,7 @@ require([
 </head>
 
 <body>
-    <input id = "searchElem" type="search" placeholder="search for data ...">
+    <input id="searchElem" type="search" placeholder="search for data ...">
     <input type="button" id="searchButton" value="Start search" disabled><br>
     <input id="typeCheck" type="checkbox" value="addType">Add type in search pattern<br>
     <div id="resList">
