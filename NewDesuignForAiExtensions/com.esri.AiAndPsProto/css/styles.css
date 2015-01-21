@@ -1,15 +1,9 @@
 /*Your styles*/
 
- body {
-    margin: 10px;
-}
-
 
 #content {
-    margin-right:auto;
-    margin-left:auto;
-    vertical-align:middle;
     width:100%;
+    height: 100%
 }
 
 
@@ -18,19 +12,32 @@
 }
 
 #mainPanel{
-	width:300px;
-	height:570px;
+	width:250px;
+	height:580px;
 	border-style:ridge;
 	border-width:thick;
 	border-radius:5px;
+    float:left;
     position:relative;
+}
+
+#mapPanel {
+	width:512px;
+	height:580px;
+    position:absolute;
+    top:0px;
+    left:270px;
+}
+
+#mapDiv {
+    height: 512px;
+    width: 510px;
 }
 
 .tabPane {
 	border-top:ridge medium;
 	border-top-radius:3px;
-	width:213px;
-	height:546px;
+	width:187px;
 	float:right;
 }
 
@@ -38,7 +45,7 @@
 	height:15px;
 }
 
-.bgMainColor {
+.mainBorderColor {
 }
 
 .bgTabColor {
@@ -65,7 +72,7 @@
 }
 
 .inputWd {
-    width:50px;
+    width:40px;
 }
 
 .selectWidth {
@@ -73,7 +80,7 @@
 }
 
 .selected {
-	width:86px;
+	width:60px;
 	border-top:ridge medium;
 	border-top-radius:3px;
 	border-bottom:ridge medium;
@@ -83,7 +90,7 @@
 }
 
 .unselected {
-	width:80px;
+	width:55px;
 	border-width:medium;
 	border-style:ridge;
 	border-radius:3px;
@@ -107,9 +114,41 @@
     border-width:1px;
 }
 
+.selectedItem {
+    background-color: #728DA5;
+}
+
 .textMargs {
     margin-left: 10px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
+}
+
+.layerMargs {
+    margin-left: 25px;
+}
+
+.blueFont {
+    color: #6699FF;
+}
+
+.redFont {
+    color: #FF6633;
+}
+
+.mapBorder {
+    border-style:ridge;
+    border-width:thick;
+    border-radius:5px;
+}
+
+#upperToolBar {
+    height: 40px;
+}
+
+.layerBG {
+    background-image: url("../icons/WhiteCircle.png");
+    background-repeat: no-repeat;
+    background-position: 15px 0px;
 }
 
 

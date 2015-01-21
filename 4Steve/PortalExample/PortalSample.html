@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<link rel="stylesheet" href="http://js.arcgis.com/3.12/dijit/themes/claro/claro.css">
+<link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
+<script>
+
+		var dojoConfig = {
+			async : true,
+			//baseUrl: "/js/",
+			tlmSiblingOfDojo : false,
+			//isDebug : 0,
+			};
+</script>
+<script src="http://js.arcgis.com/3.12/"></script>
+<script>
+require([
+    "dojo/on","esri/arcgis/Portal"
+], function (on, esriPortal){
+    var portal = null;
+    var portalUrl = 'http://www.arcgis.com';
+    portal = new esriPortal.Portal(portalUrl);
+    on(portal, 'load', function (p) {
+        document.getElementById('searchButton').disabled = false;
+        document.getElementById('searchButton').addEventListener("click",searchClick);
+    });
+    
+    function searchClick() {
+        var searchText = document.getElementById("searchElem").value;
+        document.getElementById("resList").innerHTML = "";
+        if (searchText == "") {
+            alert("Seach text was not set");
+            return;
+        }
+        if (document.getElementById("typeCheck").checked)
+            searchText += "%20AND%20type%3A%22feature%20service%22";
+        var qParams = {q: searchText};
+        portal.queryItems(qParams).then(
+            function (response){
+                addSearchResults(response.results);
+            }, function (err) {
+                document.getElementById("searchElem").innerHTML = err.message;
+        });
+    }
+    
+    function addSearchResults(res)
+    {
+        var lRes = "Result count: " + res.length + "<br>";
+        
+        for (var i = 0; i < res.length; i++) {
+            lRes += (res[i].title + "<br>");
+        }
+        var resElem = document.getElementById("resList").innerHTML = lRes;
+    }
+});
+</script>
+<title>Portal Search</title>
+</head>
+
+<body>
+    <input id = "searchElem" type="search" placeholder="search for data ...">
+    <input type="button" id="searchButton" value="Start search" disabled><br>
+    <input id="typeCheck" type="checkbox" value="addType">Add type in search pattern<br>
+    <div id="resList">
+    </div>
+</body>
+</html>

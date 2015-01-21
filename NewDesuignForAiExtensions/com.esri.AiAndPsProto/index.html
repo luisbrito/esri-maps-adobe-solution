@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 
 <link rel="stylesheet" href="http://js.arcgis.com/3.12/dijit/themes/claro/claro.css">
+<link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
 <link  id="hostStyle" rel="stylesheet" href="css/styles.css"/>
 <script>
 
@@ -19,15 +20,14 @@
 <script src="js/libs/CSInterface.js"></script>
 
 <script src="js/main.js"></script>
-
 <title></title>
 </head>
 
 <body class="hostElt">
 
     <div id="content">        
-        <div id="mainPanel" class="hostElt bgMainColor">
-            <div id="tabSearch" class="tabPane bgMainColor bgTabColor visibleTab fnTabColor">
+        <div id="mainPanel" class="hostElt mainBorderColor">
+            <div id="tabSearch" class="tabPane mainBorderColor bgTabColor visibleTab fnTabColor">
                 <div class="bgTabColor fnTabColor">
                     <img id="searchImg" src="./icons/search_black.png" style="position:relative;left:3px;top:3px;">
                     <input id="searchTextId" type="search" placeholder="search for data ..." class="bgTabColor fnTabColor searchBorder">
@@ -38,34 +38,44 @@
                         <option value="raster">Raster Layers (Image Service)</option>
                     </select>
                 </div>
-                <div class="bottomLine bgMainColor" align="right">
+                <div class="bottomLine mainBorderColor" align="right">
                     <label for="foundCount">Number of layers returned: </label><input id="foundCount" type="number" value="10" min="5" max="20" class="bgTabColor fnTabColor inputWd">
                 </div>
-                <div id="foundList" style="overflow-y:scroll; height:475px;">
+                <div id="foundList" style="overflow-y:scroll; height:485px;">
                 </div>
             </div>
-            <div id="tabMapLayers" class="tabPane bgMainColor bgTabColor hiddenTab fnTabColor">
+            <div id="tabMapLayers" class="tabPane mainBorderColor bgTabColor hiddenTab fnTabColor">
                 <select class="selectWidth bgTabColor fnTabColor">
                     <option value="topo">Topographic base map (Vector)</option>
                     <option value="here">HERE base map (Vector)</option>
                     <option value="osm">Open Street Map (Vector)</option>
                     <option value="none">&lt;NONE&gt;</option>
                 </select>
-                <div id="mapLayerList" style="overflow-y:scroll; height:523px;">
+                <div id="mapLayerList" style="overflow-y:scroll; height:533px;">
                 </div>
             </div>
-            <div id="tabSetting" class="tabPane  bgMainColor bgTabColor hiddenTab fnTabColor">
+            <div id="tabSetting" class="tabPane  mainBorderColor bgTabColor hiddenTab fnTabColor">
                 This pane is under construction
             </div>
-            <div id="searchTitle" class="tabTitle selected bgMainColor bgTabColor fnTabColor">Search data</div>
-            <div id="mapLayersTitle" class="tabTitle unselected hostElt bgMainColor">Map Layers</div>
-            <div id="settingTitle" class="tabTitle unselected hostElt bgMainColor">Settings</div>
-            <div align="right" class="toolBar bgMainColor">
-                <img src="./icons/search_black.png" class="imageSize">
-                <img src="./icons/Plas_black.png" class="imageSize">
-                <img src="./icons/trash.jpg" class="imageSize">
+            <div id="searchTitle" class="tabTitle selected mainBorderColor bgTabColor fnTabColor">Search data</div>
+            <div id="mapLayersTitle" class="tabTitle unselected hostElt mainBorderColor">Map Layers</div>
+            <div id="settingTitle" class="tabTitle unselected hostElt mainBorderColor">Settings</div>
+            <div align="right" class="toolBar mainBorderColor">
+                <img id="loupe" src="./icons/search_black.png" class="imageSize">
+                <img id ="addServBtn" src="./icons/Plas_black.png" class="imageSize">
+                <img id="deleteBtn" src="./icons/trash.jpg" class="imageSize">
             </div>
-        </div>      
+        </div>
+        <div id="mapPanel">
+            <div id = "upperToolBar" class="selectWidth mapBorder mainBorderColor">
+                Here will be tool bar
+            </div>
+            <div id = "mapDiv">
+            </div>
+            <div id = "bottomToolBar" class="selectWidth mapBorder mainBorderColor hostFontColor">
+                Initializing ...
+            </div>
+        </div>
     </div>
             
 </body>

@@ -75,7 +75,10 @@ var themeManager = (function () {
         var darkBgdColor =  toHex(panelBgColor, 20);
         
         var fontColor = "F0F0F0";
+        var selectBgdColor = toHex(panelBgColor, 50);
+        
         if (panelBgColor.red > 122) {
+            selectBgdColor = toHex(panelBgColor, -50);
             fontColor = "000000";
         }
         
@@ -103,8 +106,9 @@ var themeManager = (function () {
         addRule(styleId, ".hostButton:hover", "background-color:" + "#" + bgdColor);
         addRule(styleId, ".hostButton:active", "background-color:" + "#" + darkBgdColor);
         addRule(styleId, ".hostButton", "border-color: " + "#" + lightBgdColor);        
-        addRule(styleId, ".bgMainColor", "border-color: " + "#" + bgdColor);        
+        addRule(styleId, ".mainBorderColor", "border-color: " + "#" + bgdColor);        
         addRule(styleId, ".bgTabColor", "background-color: " + "#" + lightBgdColor);        
+        //addRule(styleId, ".selectedItem", "background-color: " + "#" + selectBgdColor);        
 
     }
     
