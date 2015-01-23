@@ -2,7 +2,6 @@
 <html>
 <head>
 
-
 <link rel="stylesheet" href="http://js.arcgis.com/3.12/dijit/themes/claro/claro.css">
 <link rel="stylesheet" href="http://js.arcgis.com/3.12/esri/css/esri.css">
 <script>
@@ -14,15 +13,19 @@
 			//isDebug : 0,
 			};
 </script>
+<script type=”text/javascript”>window.nodeRequire=window.require && window.require=undefined</script>
 <script src="http://js.arcgis.com/3.12/"></script>
 <script>
 require([
-    "dojo/on","esri/arcgis/Portal"
-], function (on, esriPortal){
+    "dojo/on","esri/arcgis/Portal", "esri/arcgis/utils"
+], function (on, esriPortal, arcgisUtils){
     var portal = null;
+	portalProps = null;
     var portalUrl = 'http://www.arcgis.com';
     portal = new esriPortal.Portal(portalUrl);
     on(portal, 'load', function (p) {
+		portalProps = p.target;
+		arcgisUtils.arcgisUrl = portalProps.portalUrl + "content/items";
         document.getElementById('searchButton').disabled = false;
         document.getElementById('searchButton').addEventListener("click",searchClick);
     });
@@ -42,13 +45,15 @@ require([
             function (response){
                 addSearchResults(response.results);
             }, function (err) {
-                document.getElementById("searchElem").innerHTML = err.message;
+                document.getElementById("resList").innerHTML = err.message;
         });
     }
     
     function addSearchResults(res)
     {
         var lRes = "Result count: " + res.length + "<br>";
+		if (res.length == 0)
+			return;
         
         for (var i = 0; i < res.length; i++) {
             lRes += (res[i].title + "<br>");

@@ -2,11 +2,11 @@
 /*global $, window, location, CSInterface, SystemPath, themeManager*/
 var map;
 require([
-    "dojo/on","esri/arcgis/Portal", "esri/request", "esri/arcgis/utils",
+    "dojo/on","esri/arcgis/Portal", "esri/request", "esri/arcgis/utils", "esri/IdentityManager",
     "esri/map", "esri/layers/FeatureLayer", "esri/SpatialReference", "dojo/domReady!", "js/themeManager.js"
 
-], function (on, esriPortal, esriRequest, arcgisUtils, Map, FeatureLayer, SpatialReference){
-    //var csInterface = new CSInterface();
+], function (on, esriPortal, esriRequest, arcgisUtils, idManager, Map, FeatureLayer, SpatialReference){
+    var csInterface = new CSInterface();
 	var currTabId = "tabSearch";
 	var currTitleId = "searchTitle";
     var portalUrl = 'http://www.arcgis.com';
@@ -21,6 +21,7 @@ require([
     var layerCount = 0;
     var currentLayer = 0;
     var selectedLayer = "";
+    var userAuth = null;
     
     // Init events for changing themes
     themeManager.init();
@@ -49,12 +50,16 @@ require([
         
         // Init event handlers for search start
         var searcIcon = document.getElementById("searchImg");
+        searcIcon.src = "./icons/ZoomGeneric16.png"
         searcIcon.addEventListener("click",startSearch);
         var searcText = document.getElementById("searchTextId");
         searcText.addEventListener("keyup",function (ev){
             if (ev.keyCode == 13)
                 startSearch();
         });
+        document.getElementById("signBtn").src = "./icons/SignIn16.png";
+        document.getElementById("signBtn").attributes["userStatus"] = "no";
+        document.getElementById("signBtn").addEventListener("click", onSignClick);
         document.getElementById("bottomToolBar").innerHTML = "Ready ...";
     });
     
@@ -77,13 +82,16 @@ require([
         // If Search tab was active, remove its event listeners
         if (wasServAddActivated) {
             document.getElementById("addServBtn").removeEventListener("click", onPlusClik);
+            document.getElementById("addServBtn").src = "./icons/AddContent16BW.png";
             wasServAddActivated = false;
         }
         
         // If Map Layaers tab was active, remove its event listeners
         if (wasLayerAddActivated) {
             document.getElementById("loupe").removeEventListener("click", onLoupeClick);
+            document.getElementById("loupe").src = "./icons/LayerZoomTo16BW.png";
             document.getElementById("deleteBtn").removeEventListener("click", deleteLayer);
+            document.getElementById("deleteBtn").src = "./icons/LayerRemove16BW.png";
             wasLayerAddActivated = false;
         }
 	}
@@ -99,9 +107,9 @@ require([
 		var title = document.getElementById("mapLayersTitle");
 		if(title.classList.contains("unselected"))
 			title.classList.remove("unselected");
+        title.classList.add("fnTabColor");
 		title.classList.add("selected");
         title.classList.add("bgTabColor");
-        title.classList.add("fnTabColor");
         
 		
         // Make Map layer list Tab visible
@@ -116,7 +124,9 @@ require([
         // If there is a selected layer, add event listener
         if ((!wasLayerAddActivated) && (selectedLayer != "")) {
             document.getElementById("loupe").addEventListener("click",onLoupeClick);
+            document.getElementById("loupe").src = "./icons/LayerZoomTo16.png";
             document.getElementById("deleteBtn").addEventListener("click",deleteLayer);
+            document.getElementById("deleteBtn").src = "./icons/LayerRemove16.png";
             wasLayerAddActivated = true;
         }
 	}
@@ -145,6 +155,7 @@ require([
         // If there is a selected service, add event listener
         if ((!wasServAddActivated) && (selectedService != "")) {
             document.getElementById("addServBtn").addEventListener("click",onPlusClik);
+            document.getElementById("addServBtn").src = "./icons/AddContent16.png";
             wasServAddActivated = true;
         }
         
@@ -198,6 +209,7 @@ require([
         selectedService = "";
         if (wasServAddActivated) {
             document.getElementById("addServBtn").removeEventListener("click", onPlusClik);
+            document.getElementById("addServBtn").src = "./icons/AddContent16BW.png";
             wasServAddActivated = false;
         }
         wasServAddActivated = false;
@@ -207,27 +219,14 @@ require([
         var serviceCount = document.getElementById("foundCount").value;
         var whatToSearch = document.getElementById("resourceToFind").value;
         if (whatToSearch == "vector")
-            whatToSearch = "%20AND%20type%3A%22feature%20service%22";
+            whatToSearch = " AND type:\"feature service\"";
         else
-            whatToSearch = "%20AND%20type%3A%22image%20service%22";
+            whatToSearch = " AND type:\"image service\"";
         var qParams = {
-            q: searchText + whatToSearch
+            q: searchText + whatToSearch,
+            sortField:""
         };
-        /*portal.queryItems(qParams).then(
-            function (response){
-                console.log(response);
-                //showSearchResults(response.results);
-            }, function (err) {
-                console.log(err);
-                //alert(err.message);
-            });*/
-        var reqUrl = searchURL + "?q=" + searchText + whatToSearch + "&num=" + serviceCount + "&f=pjson";
-        var serviceRequest = esriRequest( {
-			url: reqUrl,
-			handleAs: "json",
-			callbackParamName: "callback"
-		} );
-        serviceRequest.then(
+        portal.queryItems(qParams).then(
             function (response){
                 showSearchResults(response.results);
             }, function (err) {
@@ -299,6 +298,7 @@ require([
         ev.currentTarget.classList.add("selectedItem");
         if (!wasServAddActivated) {
             document.getElementById("addServBtn").addEventListener("click",onPlusClik);
+            document.getElementById("addServBtn").src = "./icons/AddContent16.png";
             wasServAddActivated = true;
         }
     }
@@ -306,6 +306,8 @@ require([
     // Maybe it isn't necessary
     function onMapLoad() {
         map.resize();
+        document.getElementById("zoomFull").src = "./icons/ZoomFullExtent16.png";
+        document.getElementById("zoomFull").addEventListener("click", toFullExtent);
     }
     
     // Adding layers of the selected service into the map
@@ -394,7 +396,7 @@ require([
         
         // Image corresponding leaf node of the layer list
         var lThumb = document.createElement("img");
-        lThumb.src = "./icons/WhiteCircle.png";
+        lThumb.src = "./icons/EditingCircleTool16BW.png";
         lThumb.classList.add("imageSize");
         lThumb.classList.add("layerMargs");
         lDiv.appendChild(lThumb);
@@ -443,7 +445,7 @@ require([
         
         // Image corresponding not leaf node
         var arrow = document.createElement("img");
-        arrow.src = "./icons/WhiteArrDown.png";
+        arrow.src = "./icons/GenericBlueDownArrowNoTail16B.png";
         arrow.classList.add("imageSize");
         arrow.attributes["isOpen"] = "yes";
         arrow.addEventListener("click",onTreeNodeClick);
@@ -453,6 +455,7 @@ require([
         var newThumb = document.createElement("img");
         newThumb.src = servElement.attributes["thumbUrl"];
         newThumb.classList.add("imageSize");
+        newThumb.style.marginLeft = "5px";
         sDiv.appendChild(newThumb);
         
         // Title of the service
@@ -479,6 +482,7 @@ require([
         // Remove event handler from "+" button
         if (wasServAddActivated) {
             document.getElementById("addServBtn").removeEventListener("click", onPlusClik);
+            document.getElementById("addServBtn").src = "./icons/AddContent16BW.png";
             wasServAddActivated = false;
         }
         
@@ -509,12 +513,12 @@ require([
         var disp;
         if (isOpen) {
             ev.target.attributes["isOpen"] = "yes";
-            ev.target.src = "./icons/WhiteArrDown.png";
+            ev.target.src = "./icons/GenericBlueDownArrowNoTail16B.png";
             disp = "block";
         }
         else {
             ev.target.attributes["isOpen"] = "no";
-            ev.target.src = "./icons/WhiteArrRight.png";
+            ev.target.src = "./icons/GenericBlueRigtArrowNoTail16B.png";
             disp = "none";
         }
         var layer = ev.target.parentNode.nextSibling;
@@ -547,7 +551,9 @@ require([
         layer.classList.add("selectedItem");
         if (!wasLayerAddActivated) {
             document.getElementById("loupe").addEventListener("click",onLoupeClick);
+            document.getElementById("loupe").src = "./icons/LayerZoomTo16.png";
             document.getElementById("deleteBtn").addEventListener("click",deleteLayer);
+            document.getElementById("deleteBtn").src = "./icons/LayerRemove16.png";
             wasLayerAddActivated = true;
         }
     }
@@ -594,7 +600,9 @@ require([
         
         selectedLayer = "";
         document.getElementById("loupe").removeEventListener("click", onLoupeClick);
+        document.getElementById("loupe").src = "./icons/LayerZoomTo16BW.png";
         document.getElementById("deleteBtn").removeEventListener("click", deleteLayer);
+        document.getElementById("deleteBtn").src = "./icons/LayerRemove16BW.png";
         wasLayerAddActivated = false;
     }
     
@@ -614,6 +622,104 @@ require([
         var parent = serv.parentNode;
         parent.parentNode.removeChild(parent);
     }
+    
+    // Sign in using OAuth2
+    function signIn() {
+        clearStatusBar ();
+        // Just in case really it cannot happen
+        if (document.getElementById("signBtn").attributes["userStatus"] == "yes")
+            return;
+        
+        // Wait massage from the child extention which performs signing in
+        csInterface.addEventListener("esri.authorizing.event.message", function (event){
+            
+            // Parse the message from the child extension
+            userAuth = {};
+            
+            // Split to (name, value) pairs
+            var s = event.data.split("&");
+            for (var i = 0; i < s.length; i++) {
+                
+                // Split the pair
+                var ss = s[i].split("=");
+                if (ss.length != 2) {
+                    userAuth.error = "Wrong format of answer";
+                    break;
+                }
+                var qq = ss[0];
+                userAuth[qq] = decodeURI(ss[1]);
+            }
+            if (userAuth["error_description"]) {
+                printErrorMessage("error: " + userAuth["error_description"]);
+                return;
+            }
+            else if (userAuth["error"]) {
+                printErrorMessage("error: " + userAuth["error"]);
+                return;
+            }
+            
+            // Get credits
+            idManager.registerToken({
+                server: portal.portalUrl,
+                userId: userAuth.username,
+                token: userAuth.access_token,
+                expires: userAuth.expires_in,
+                ssl: portal.ssl
+            });
+            var cred = idManager.findCredential(portal.portalUrl, userAuth.username);
+            portal.signIn().then(
+                function(portalUser) {
+                    document.getElementById("signBtn").src = "./icons/system-log-out.png";
+                    document.getElementById("signBtn").attributes["userStatus"] = "yes";
+                    document.getElementById("userName").innerHTML=portalUser.fullName;
+                }, function (err) {
+                    printErrorMessage("error: " + err.message);
+            });
+        });
+        
+        // Run child extension which perfoms signing in
+        csInterface.requestOpenExtension("com.esri.outh2.dialog", "");
+    }
+    
+    function printErrorMessage (mess) {
+        var status = document.getElementById("bottomToolBar");
+        if (status.classList.contains("blueFont"))
+            status.classList.remove("blueFont");
+        if (status.classList.contains("hostFontColor"))
+            status.classList.remove("hostFontColor");
+        status.classList.add("redFont");
+        status.innerHTML = mess;
+    }
+    
+    // Clear status bar from older messages and set base font color
+    function clearStatusBar () {
+        var status = document.getElementById("bottomToolBar");
+        if (status.classList.contains("redFont"))
+            status.classList.remove("redFont");
+        if (status.classList.contains("blueFont"))
+            status.classList.remove("blueFont");
+        status.classList.add("hostFontColor");
+        status.innerHTML = "Ready...";
+    }
+    
+    function onSignClick ()
+    {
+        if (document.getElementById("signBtn").attributes["userStatus"] == "no")
+            signIn();
+        else {
+            portal.signOut();
+            document.getElementById("signBtn").src = "./icons/SignIn16.png";
+            document.getElementById("signBtn").attributes["userStatus"] = "no";
+            document.getElementById("userName").innerHTML="Not signed in";
+            userAuth = null;
+        }
+    }
+    
+    function toFullExtent() {
+        map.setZoom(map.getMinZoom());
+    }
+    
+    
                 
         /*$("#btn_test").click(function () {
             csInterface.evalScript('sayHello()');

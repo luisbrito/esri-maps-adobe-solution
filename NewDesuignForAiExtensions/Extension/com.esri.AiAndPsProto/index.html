@@ -10,9 +10,7 @@
 
 		var dojoConfig = {
 			async : true,
-			//baseUrl: "/js/",
 			tlmSiblingOfDojo : false,
-			//isDebug : 0,
 			};
 </script>
 <script src="http://js.arcgis.com/3.12/"></script>
@@ -20,7 +18,7 @@
 <script src="js/libs/CSInterface.js"></script>
 
 <script src="js/main.js"></script>
-<title></title>
+<title>ArcGIS maps for Adobe Creative Cloud</title>
 </head>
 
 <body class="hostElt">
@@ -29,7 +27,7 @@
         <div id="mainPanel" class="hostElt mainBorderColor">
             <div id="tabSearch" class="tabPane mainBorderColor bgTabColor visibleTab fnTabColor">
                 <div class="bgTabColor fnTabColor">
-                    <img id="searchImg" src="./icons/search_black.png" style="position:relative;left:3px;top:3px;">
+                    <img id="searchImg" src="./icons/ZoomGeneric16BW.png" style="position:relative;left:3px;top:3px;">
                     <input id="searchTextId" type="search" placeholder="search for data ..." class="bgTabColor fnTabColor searchBorder">
                 </div>
                 <div>
@@ -58,17 +56,23 @@
                 This pane is under construction
             </div>
             <div id="searchTitle" class="tabTitle selected mainBorderColor bgTabColor fnTabColor">Search data</div>
-            <div id="mapLayersTitle" class="tabTitle unselected hostElt mainBorderColor">Map Layers</div>
-            <div id="settingTitle" class="tabTitle unselected hostElt mainBorderColor">Settings</div>
+            <div id="mapLayersTitle" class="tabTitle unselected mainBorderColor">Map Layers</div>
+            <div id="settingTitle" class="tabTitle unselected mainBorderColor">Settings</div>
             <div align="right" class="toolBar mainBorderColor">
-                <img id="loupe" src="./icons/search_black.png" class="imageSize">
-                <img id ="addServBtn" src="./icons/Plas_black.png" class="imageSize">
-                <img id="deleteBtn" src="./icons/trash.jpg" class="imageSize">
+                <img id="zoomFull" src="./icons/ZoomFullExtent16BW.png" class="imageSize">
+                <img id="loupe" src="./icons/LayerZoomTo16BW.png" class="imageSize">
+                <img id ="addServBtn" src="./icons/AddContent16BW.png" class="imageSize">
+                <img id="deleteBtn" src="./icons/LayerRemove16BW.png" class="imageSize">
             </div>
         </div>
         <div id="mapPanel">
-            <div id = "upperToolBar" class="selectWidth mapBorder mainBorderColor">
-                Here will be tool bar
+            <div id = "upperToolBar" class="selectWidth mapBorder mainBorderColor" align="right">
+                <div id="signBlock" class="leftBorder mainBorderColor">
+                    <div>
+                        <img id ="signBtn" src="./icons/SignIn16BW.png" class="imageSize">
+                    </div>
+                    <div id="userName">Not signed in</div>
+                </div>
             </div>
             <div id = "mapDiv">
             </div>

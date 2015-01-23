@@ -120,7 +120,7 @@
 
 .textMargs {
     margin-left: 10px;
-    margin-bottom: 3px;
+    margin-bottom: 8px;
 }
 
 .layerMargs {
@@ -140,6 +140,17 @@
     border-width:thick;
     border-radius:5px;
 }
+
+.leftBorder {
+    border-left-style:ridge;
+    border-left-width:thick;
+}
+
+#signBlock {
+    height: 100%;
+    width: 70px;
+}
+
 
 #upperToolBar {
     height: 40px;
