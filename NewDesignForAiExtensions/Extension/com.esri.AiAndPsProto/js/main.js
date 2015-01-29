@@ -2,10 +2,11 @@
 /*global $, window, location, CSInterface, SystemPath, themeManager*/
 var map;
 require([
-    "dojo/on","esri/arcgis/Portal", "esri/request", "esri/arcgis/utils", "esri/IdentityManager",
+    "dojo/on", "esri/arcgis/Portal", "esri/request", "esri/arcgis/utils", "esri/IdentityManager",
     "esri/map", "esri/layers/FeatureLayer", "esri/SpatialReference", "dojo/domReady!", "js/themeManager.js"
 
-], function (on, esriPortal, esriRequest, arcgisUtils, idManager, Map, FeatureLayer, SpatialReference){
+], function (on, esriPortal, esriRequest, arcgisUtils, idManager, Map, FeatureLayer, SpatialReference) {
+    'use strict';
     var csInterface = new CSInterface();
 	var currTabId = "tabSearch";
 	var currTitleId = "searchTitle";
@@ -22,6 +23,7 @@ require([
     var currentLayer = 0;
     var selectedLayer = "";
     var userAuth = null;
+    var layerList = [];
     
     // Init events for changing themes
     themeManager.init();
@@ -53,14 +55,25 @@ require([
         searcIcon.src = "./icons/ZoomGeneric16.png"
         searcIcon.addEventListener("click",startSearch);
         var searcText = document.getElementById("searchTextId");
-        searcText.addEventListener("keyup",function (ev){
-            if (ev.keyCode == 13)
+        searcText.addEventListener("search",function (ev){
+            if (ev.target.value == "") {
+                document.getElementById("foundList").innerHTML = "";
+                if (wasServAddActivated) {
+                    document.getElementById("addServBtn").removeEventListener("click", onPlusClik);
+                    document.getElementById("addServBtn").src = "./icons/AddContent16BW.png";
+                    wasServAddActivated = false;
+                }
+                selectedService = "";
+            }
+            else
                 startSearch();
         });
         document.getElementById("signBtn").src = "./icons/SignIn16.png";
         document.getElementById("signBtn").attributes["userStatus"] = "no";
         document.getElementById("signBtn").addEventListener("click", onSignClick);
         document.getElementById("bottomToolBar").innerHTML = "Ready ...";
+        document.getElementById("layerDown").attributes["hasHandler"] = "no";
+        document.getElementById("layerUp").attributes["hasHandler"] = "no";
     });
     
     // Change look of previously selected tab (make it unselected)
@@ -92,6 +105,16 @@ require([
             document.getElementById("loupe").src = "./icons/LayerZoomTo16BW.png";
             document.getElementById("deleteBtn").removeEventListener("click", deleteLayer);
             document.getElementById("deleteBtn").src = "./icons/LayerRemove16BW.png";
+            document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16BW.png";
+            if (document.getElementById("layerUp").attributes["hasHandler"] == "yes") {
+                document.getElementById("layerUp").removeEventListener("click",moveUp);
+                document.getElementById("layerUp").attributes["hasHandler"] = "no";
+            }
+            document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16BW.png";
+            if (document.getElementById("layerDown").attributes["hasHandler"] == "yes") {
+                document.getElementById("layerDown").removeEventListener("click",moveDown);
+                document.getElementById("layerDown").attributes["hasHandler"] = "no";
+            }
             wasLayerAddActivated = false;
         }
 	}
@@ -127,6 +150,47 @@ require([
             document.getElementById("loupe").src = "./icons/LayerZoomTo16.png";
             document.getElementById("deleteBtn").addEventListener("click",deleteLayer);
             document.getElementById("deleteBtn").src = "./icons/LayerRemove16.png";
+            
+            var layer = document.getElementById(selectedLayer);
+            var last = document.getElementById("mapLayerList").lastElementChild.lastElementChild;
+            var first = document.getElementById("mapLayerList").firstElementChild.firstElementChild;
+            // Check: whether we can move it down
+            if ((layer.id == last.id) || /* The last layer in the map (index == 0)*/
+                ((layer.attributes["itemType"] == "service_descr") && /* the root of the service*/
+                 (last.attributes["servId"] == layer.attributes["servId"])) /* the last service in the map*/
+                || ((layer.attributes["itemType"] == "service_layer") && /* simple layer ( not service)*/
+                    (layer.parentNode.lastElementChild.id == layer.id))) /* the ;ast layer in the service*/ {
+                // it cannot be moved down
+                document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16BW.png";
+                if (document.getElementById("layerDown").attributes["hasHandler"] == "yes") {
+                    document.getElementById("layerDown").removeEventListener("click",moveDown);
+                    document.getElementById("layerDown").attributes["hasHandler"] = "no";
+                }
+            }
+            else {
+                // it can be moved down
+                document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16.png";
+                document.getElementById("layerDown").addEventListener("click",moveDown);
+                document.getElementById("layerDown").attributes["hasHandler"] = "yes";
+            }
+
+            // Check: whether we can move it up
+            if ((layer.id == first.id) /* the first service in the map*/
+                || ((layer.attributes["itemType"] == "service_layer") /* simple layer (not service)*/
+                    && (layer.previousSibling.attributes["itemType"] == "service_descr"))) /* first layer in the service*/ {
+                // it cannot be moved up
+                document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16BW.png";
+                if (document.getElementById("layerUp").attributes["hasHandler"] == "yes") {
+                    document.getElementById("layerUp").removeEventListener("click",moveUp);
+                    document.getElementById("layerUp").attributes["hasHandler"] = "no";
+                }
+            }
+            else {
+                // it can be moved up
+                document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16.png";
+                document.getElementById("layerUp").addEventListener("click",moveUp);
+                document.getElementById("layerUp").attributes["hasHandler"] = "yes";
+            }
             wasLayerAddActivated = true;
         }
 	}
@@ -368,6 +432,8 @@ require([
             layer.myName = servDescription.layers[i].name;
             layer.myExt = servDescription.initialExtent;
             layer.servExtent = servDescription.fullExtent;
+            layer.myIndex = i;
+            layerList[i] = null;
             layer.on ("load", onLayerLoad);
         }
     }
@@ -375,50 +441,70 @@ require([
     // Adding layer loaded in the map into the list of map layers
     function onLayerLoad (layer) {
         
-        // Check: is there service element for this layer in the list
-        var servRoot = document.getElementById(layer.target.service + "_with_layers");
-        
-        if (!servRoot) {
-            // Add service element for this layer in the list
-            servRoot = makeRootForService (layer.target.service, layer.target.fullExtent);
-        }
-        if (!servRoot)
-            return;
-        
-        // Add element for this layer in the map layer list
-        var lDiv = document.createElement("div");
-        lDiv.id = layer.target.id;
-        lDiv.attributes["itemType"] = "service_layer";
-        
-        // Element style
-        lDiv.classList.add("serviceItem");
-        lDiv.classList.add("mainBorderColor");
-        
-        // Image corresponding leaf node of the layer list
-        var lThumb = document.createElement("img");
-        lThumb.src = "./icons/EditingCircleTool16BW.png";
-        lThumb.classList.add("imageSize");
-        lThumb.classList.add("layerMargs");
-        lDiv.appendChild(lThumb);
-        
-        // The name of the layer
-        var lName = document.createElement("span");
-        lName.classList.add("textMargs");
-        lName.innerHTML = layer.target.myName;
-        lDiv.appendChild(lName);
-        
-        servRoot.appendChild(lDiv);
-        lDiv.addEventListener("click",onLayerClick);        
-        // Zoom to extent of adding service
+        layerList[layer.layer.myIndex] = layer.layer;
         currentLayer ++;
+        var myExt = null;
+        
         if (currentLayer == layerCount) {
-            zoomToExt(layer.target.myExt);
+            // All layers are ready, build element with layer list
             var status = document.getElementById("bottomToolBar");
             status.classList.remove("blueFont");
             status.classList.add("hostFontColor");
             status.innerHTML = "Ready ..."
             layerCount = 0;
             currentLayer = 0;
+            
+            // Check whether was really loaded something
+            var isOK = false;
+            for (var j = 0; j < layerList.length; j++) {
+                if (layerList[j] != null) {
+                    isOK = true;
+                    break;
+                }
+            }
+            
+            if (!isOK) {
+                // No one layer was loaded
+                layerList = [];
+                return;
+            }
+            
+            // build element with layer list
+            var servRoot = makeRootForService (layer.layer.service, layer.layer.servExtent);
+            for (var i = (layerList.length -1); i >= 0; i--) {
+                if (layerList[i] == null)
+                    continue;
+                if (!myExt)
+                    myExt = layerList[i].myExt;
+                var lDiv = document.createElement("div");
+                lDiv.id = layerList[i].id;
+                lDiv.attributes["itemType"] = "service_layer";
+                lDiv.attributes["servId"] = layer.layer.service;
+
+                // Element style
+                lDiv.classList.add("serviceItem");
+                lDiv.classList.add("mainBorderColor");
+
+                // Image corresponding leaf node of the layer list
+                var lThumb = document.createElement("img");
+                lThumb.src = "./icons/EditingCircleTool16BW.png";
+                lThumb.classList.add("imageSize");
+                lThumb.classList.add("layerMargs");
+                lDiv.appendChild(lThumb);
+
+                // The name of the layer
+                var lName = document.createElement("span");
+                lName.classList.add("textMargs");
+                lName.innerHTML = layerList[i].myName;
+                lDiv.appendChild(lName);
+
+                servRoot.appendChild(lDiv);
+                lDiv.addEventListener("click",onLayerClick);        
+            }
+            // Zoom to extent of adding service
+            if (myExt)
+                zoomToExt(myExt);
+            layerList = [];
         }
     }
     
@@ -465,7 +551,7 @@ require([
         sDiv.appendChild(newName);
         newDiv.appendChild(sDiv);
 
-        rootElem.appendChild(newDiv);
+        rootElem.insertBefore(newDiv, rootElem.firstChild);
         newDiv.addEventListener("click",onLayerClick);
         
         // Add service in the list off added services
@@ -556,6 +642,47 @@ require([
             document.getElementById("deleteBtn").src = "./icons/LayerRemove16.png";
             wasLayerAddActivated = true;
         }
+        
+        var last = document.getElementById("mapLayerList").lastElementChild.lastElementChild;
+        var first = document.getElementById("mapLayerList").firstElementChild.firstElementChild;
+        
+        // Check: whether we can move it down
+        if ((layer.id == last.id) || /* The last layer in the map (index == 0)*/
+            ((layer.attributes["itemType"] == "service_descr") && /* the root of the service*/
+             (last.attributes["servId"] == layer.attributes["servId"])) /* the last service in the map*/
+            || ((layer.attributes["itemType"] == "service_layer") && /* simple layer ( not service)*/
+                (layer.parentNode.lastElementChild.id == layer.id))) /* the ;ast layer in the service*/ {
+            // it cannot be moved down
+            if (document.getElementById("layerDown").attributes["hasHandler"] == "yes") {
+                document.getElementById("layerDown").removeEventListener("click",moveDown);
+                document.getElementById("layerDown").attributes["hasHandler"] = "no";
+            }
+            document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16BW.png";
+        }
+        else {
+            // it can be moved down
+            document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16.png";
+            document.getElementById("layerDown").addEventListener("click",moveDown);
+            document.getElementById("layerDown").attributes["hasHandler"] = "yes";
+        }
+        
+        // Check: whether we can move it up
+        if ((layer.id == first.id) /* the first service in the map*/
+            || ((layer.attributes["itemType"] == "service_layer") /* simple layer (not service)*/
+                && (layer.previousSibling.attributes["itemType"] == "service_descr"))) /* first layer in the service*/ {
+            // it cannot be moved up
+            document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16BW.png";
+            if (document.getElementById("layerUp").attributes["hasHandler"] == "yes") {
+                document.getElementById("layerUp").removeEventListener("click",moveUp);
+                document.getElementById("layerUp").attributes["hasHandler"] = "no";
+            }
+        }
+        else {
+            // it can be moved up
+            document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16.png";
+            document.getElementById("layerUp").addEventListener("click",moveUp);
+            document.getElementById("layerUp").attributes["hasHandler"] = "yes";
+        }
     }
     
     // Zoom on the selected layer
@@ -603,6 +730,12 @@ require([
         document.getElementById("loupe").src = "./icons/LayerZoomTo16BW.png";
         document.getElementById("deleteBtn").removeEventListener("click", deleteLayer);
         document.getElementById("deleteBtn").src = "./icons/LayerRemove16BW.png";
+        document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16BW.png";
+        document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16BW.png";
+        document.getElementById("layerUp").removeEventListener("click",moveUp);
+        document.getElementById("layerUp").attributes["hasHandler"] = "no";
+        document.getElementById("layerDown").removeEventListener("click",moveDown);
+        document.getElementById("layerDown").attributes["hasHandler"] = "no";
         wasLayerAddActivated = false;
     }
     
@@ -717,6 +850,154 @@ require([
     
     function toFullExtent() {
         map.setZoom(map.getMinZoom());
+    }
+    
+    function moveUp() {
+        var sel = document.getElementById(selectedLayer);
+        if (sel.attributes["itemType"] == "service_layer") {
+            // Single layer, move it up in Z order
+            var index = map.graphicsLayerIds.indexOf(selectedLayer);
+            if (index < 0)
+                return;
+            index++;
+            if (index >= map.graphicsLayerIds.length)
+                return;
+            var layer = map.getLayer(selectedLayer);
+            map.reorderLayer(layer, index);
+            
+            // Reflect moving in UI
+            var prev = sel.previousElementSibling;
+            var prevPrev = prev.previousElementSibling;
+            sel.parentElement.insertBefore(sel, prev);
+            
+            // Define where we can move selected layer now
+            if (prevPrev.attributes["itemType"] == "service_descr") {
+                document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16BW.png";
+                document.getElementById("layerUp").removeEventListener("click",moveUp);
+                document.getElementById("layerUp").attributes["hasHandler"] = "no";
+            }
+            if (document.getElementById("layerDown").attributes["hasHandler"] == "no") {
+                document.getElementById("layerDown").addEventListener("click",moveDown);
+                document.getElementById("layerDown").attributes["hasHandler"] = "yes";
+            }
+            document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16.png";
+            return;
+        }
+
+        // The list of layers to move (layers of service in the z-order in map)
+        var layerArr = [];
+        // Get get the layer which is the closest to the bittom
+        var whatMove = sel.parentElement;
+        var prev = whatMove.lastElementChild;
+        // Coolect all layers of the sevice moving up
+        while(prev.attributes["itemType"] != "service_descr") {
+            layerArr.push(prev.id);
+            prev = prev.previousElementSibling;
+        } // Got the layer list to move
+        
+        // Find layer index in the map where we have to move layers of selected service
+        var whereMove = whatMove.previousElementSibling; // Get element with previous service
+        var serv = whereMove.firstElementChild; // Get element with service description
+        var whereIn = serv.nextElementSibling;  // Get element with first layer of the previous service
+        
+        // Get index of the found layer in the map
+        var index = map.graphicsLayerIds.indexOf(whereIn.id);
+        if (index < 0)
+            return;
+        // Move layers of the selected service in found place
+        for (var i = 0; i < layerArr.length; i++){
+            var l = map.getLayer(layerArr[i]);
+            map.reorderLayer(l, index);
+        }
+        
+        // Reflect the current order oflayers in the UI
+        
+        var whoMove = whatMove.parentElement;
+        whoMove.insertBefore(whatMove, whereMove);
+        
+        // Define where can we move selelected service after performed operation
+        var first = document.getElementById("mapLayerList").firstElementChild.firstElementChild;
+        if (first.attributes["servId"] == sel.attributes["servId"]) {
+            document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16BW.png";
+            if (document.getElementById("layerUp").attributes["hasHandler"] == "yes") {
+                document.getElementById("layerUp").removeEventListener("click",moveUp);
+                document.getElementById("layerUp").attributes["hasHandler"] = "no";
+            }
+        }
+        if (document.getElementById("layerDown").attributes["hasHandler"] == "no") {
+            document.getElementById("layerDown").addEventListener("click",moveDown);
+            document.getElementById("layerDown").attributes["hasHandler"] = "yes";
+        }
+        document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16.png";
+    }
+    
+    function moveDown() {
+        var sel = document.getElementById(selectedLayer);
+        if (sel.attributes["itemType"] == "service_layer") {
+            // Single layer, move it dow in Z order
+            var index = map.graphicsLayerIds.indexOf(selectedLayer);
+            if (index < 0)
+                return;
+            var layer = map.getLayer(selectedLayer);
+            index--;
+            if (index < 0)
+                return;
+            map.reorderLayer(layer, index);
+            
+            // Reflect moving in UI
+            var next = sel.nextElementSibling;
+            var last = sel.parentElement.lastElementChild;
+            sel.parentElement.insertBefore(next, sel);
+            
+            // Define where can we move selelected service after performed operation
+            if (last.id == next.id) {
+                document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16BW.png";
+                document.getElementById("layerDown").removeEventListener("click",moveDown);
+                document.getElementById("layerDown").attributes["hasHandler"] = "no";
+            }
+            if (document.getElementById("layerUp").attributes["hasHandler"] == "no") {
+                document.getElementById("layerUp").addEventListener("click",moveUp);
+                document.getElementById("layerUp").attributes["hasHandler"] = "yes";
+            }
+            document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16.png";
+            return;
+        }
+        
+        var layerArr = [];
+        var whatMove = sel.parentElement;
+        var prev = whatMove.lastElementChild;
+        while(prev.attributes["itemType"] != "service_descr") {
+            layerArr.push(prev.id);
+            prev = prev.previousElementSibling;
+        }
+        
+        var whereMove = whatMove.nextElementSibling;
+        var whereIn = whereMove.lastElementChild;
+        var index = map.graphicsLayerIds.indexOf(whereIn.id);
+        if (index < 0)
+            return;
+        
+        for (var i = (layerArr.length -1); i >= 0; i--){
+            var l = map.getLayer(layerArr[i]);
+            map.reorderLayer(l, index);
+        }
+        
+        var whoMove = whatMove.parentElement;
+        whoMove.insertBefore(whereMove, whatMove);
+        
+        var last = document.getElementById("mapLayerList").lastElementChild.firstElementChild;
+        if (last.attributes["servId"] == sel.attributes["servId"]) {
+            document.getElementById("layerDown").src = "./icons/GenericBlueDownArrowLongTail16BW.png";
+            if (document.getElementById("layerDown").attributes["hasHandler"] == "yes") {
+                document.getElementById("layerDown").removeEventListener("click",moveDown);
+                document.getElementById("layerDown").attributes["hasHandler"] = "no";
+            }
+        }
+        if (document.getElementById("layerUp").attributes["hasHandler"] == "no") {
+            document.getElementById("layerUp").addEventListener("click",moveUp);
+            document.getElementById("layerUp").attributes["hasHandler"] = "yes";
+        }
+        document.getElementById("layerUp").src = "./icons/GenericBlueUpArrowLongTail16.png";
     }
     
     
