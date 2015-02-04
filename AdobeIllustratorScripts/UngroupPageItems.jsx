@@ -14,7 +14,6 @@ for (var i=0; i<docRef.layers.length; i++) {
 
 function ungroup(layer){
      for (var o=0; o<layer.groupItems.length; o++) {
-        var dddd= layer.groupItems[o].pageItems.length;
         for ( var k = layer.groupItems[o].pageItems.length-1; k >= 0; k--) {
                 var artItem =layer.groupItems[o].pageItems[k];
                 artItem.move(layer.groupItems[o], ElementPlacement.PLACEAFTER);
